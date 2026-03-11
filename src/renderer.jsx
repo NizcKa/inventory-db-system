@@ -14,6 +14,7 @@ import AddItem from './components/AddItem';
 const App = () => {
 	const [inventory, setInventory] = useState([]); // holds the inventory table
 	const [selectedItem, setSelectedItem] = useState( null ); //holds the selected row contents
+	const [searchQuery, setSearchQuery] = useState(""); // search state
 
 	// loads the database table into items 
 	useEffect(() => { 
@@ -33,8 +34,22 @@ const App = () => {
 		modal.show();  
 	}
 
+	// filtered items based on search
+	const filteredInventory = inventory.filter(item => {
+		const query = searchQuery.toLowerCase();
+		return (
+			item.Index_ID?.toLowerCase().includes(query) ||
+			item.Type?.toLowerCase().includes(query) ||
+			item.Property_Description?.toLowerCase().includes(query) ||
+			item.Brand?.toLowerCase().includes(query) ||
+			item.Property_Number?.toLowerCase().includes(query)
+		);
+	});
+
 	return (
 		<>
+
+		<div className="d-flex justify-content-between align-items-center mb-2">
 		<button
 			className="btn btn-success"
 			data-bs-toggle="modal"
@@ -43,8 +58,17 @@ const App = () => {
 			Add Item
 		</button>
 
+		<input // search bar
+			type="text"
+			className="form-control w-50"
+			placeholder="Search inventory..."
+			value={searchQuery}
+			onChange={(e) => setSearchQuery(e.target.value)}
+		/>
+		</div>
+		
 		<Table 
-			items = { inventory }
+			items = { filteredInventory }
 			selectedItem = { selectedItem } 
 			setSelectedItem = { setSelectedItem } 
 			onEdit = { handleEdit }

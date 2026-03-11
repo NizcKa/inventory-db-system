@@ -166,7 +166,7 @@ const typePrefixes = { // type prefix for index id
 	"OFFICE EQUIPMENT": "OFF",
 };
 
-// literally in the title i can't even pretend i'm being smart here
+// read index id number and increment straight from the database
 ipcMain.handle('generate-next-item-id', async (event, type) => {
   const db = getDb();
 
