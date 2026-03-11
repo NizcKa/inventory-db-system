@@ -1,7 +1,7 @@
 // table for testing
 import React from 'react';
 
-const Table = ({ items, selectedItem, setSelectedItem, onEdit }) => {
+const Table = ({ items, selectedItem, setSelectedItem, onEdit }) => { //should be functional?
   if (!items.length) return <p>No items found.</p>;
 
   return (

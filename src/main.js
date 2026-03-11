@@ -19,6 +19,8 @@ const createWindow = () => {
     },
   });
 
+  mainWindow.maximize();
+
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
@@ -74,6 +76,7 @@ ipcMain.handle('get-all-items', async () => {
 // for updating edited items
 ipcMain.handle('update-item', async (event, item) => {
   const db = getDb();
+  console.log(db);
 
   return new Promise((resolve, reject) => {
     const query = `
@@ -105,8 +108,87 @@ ipcMain.handle('update-item', async (event, item) => {
     ];
 
     db.run(query, params, function(err) {
-      if (err) reject(err);
-      else resolve({ success: true });
+      if (err) {
+        reject(err)
+      } else { 
+        resolve({ success: true });
+      }
+    });
+  });
+});
+
+// adds items to the table
+ipcMain.handle('add-item', async (event, item) => {
+  const db = getDb();
+
+  return new Promise((resolve, reject) => {
+    const query = `
+      INSERT INTO Catalogue (
+        Index_ID,
+        Type,
+        Property_Description,
+        Brand,
+        Property_Number,
+        Acquisition_Date,
+        Acquisition_Cost,
+        Memorandum_Receipt,
+        District,
+        Equipment_Location
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const params = [
+      item.Index_ID,
+      item.Type,
+      item.Property_Description,
+      item.Brand,
+      item.Property_Number,
+      item.Acquisition_Date,
+      item.Acquisition_Cost,
+      item.Memorandum_Receipt,
+      item.District,
+      item.Equipment_Location
+    ];
+
+    db.run(query, params, function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({ success: true });
+      }
+    });
+  });
+});
+
+const typePrefixes = { // type prefix for index id
+	"ICT EQUIPMENT": "ICT",
+	"OFFICE EQUIPMENT": "OFF",
+};
+
+// literally in the title i can't even pretend i'm being smart here
+ipcMain.handle('generate-next-item-id', async (event, type) => {
+  const db = getDb();
+
+  const prefix = typePrefixes[type] || type.slice(0, 3).toUpperCase(); // 3 letter prefix for index id
+
+  return new Promise((resolve, reject) => { // gets most recent index id
+    const query = `
+      SELECT Index_ID FROM Catalogue
+      WHERE Type = ?
+      ORDER BY Index_ID DESC
+      LIMIT 1
+    `;
+    db.get(query, [type], (err, row) => {
+      if (err) return reject(err);
+
+      let nextNumber = 1;
+      if (row && row.Index_ID) {
+        const parts = row.Index_ID.match(/\d+$/); // extracts the numeric end of the index id
+        if (parts) nextNumber = Number.parseInt(parts[0], 10) + 1;
+      }
+
+      resolve(`${prefix}${String(nextNumber).padStart(3, "0")}`);
     });
   });
 });

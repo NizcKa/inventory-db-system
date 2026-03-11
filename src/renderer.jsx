@@ -5,51 +5,65 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import * as bootstrap from "bootstrap";
 
 // item components
-import Profile from './components/Profile';
+import { fieldDefs } from './FieldDefs';
 import Table from './components/Table';
-import ItemModal from './components/ItemModal';
+import EditItem from './components/EditItem';
+import AddItem from './components/AddItem';
+
 
 const App = () => {
-  const [inventory, setInventory] = useState([]); // holds the inventory table
-  const [selectedItem, setSelectedItem] = useState( null ); //holds the selected row contents
+	const [inventory, setInventory] = useState([]); // holds the inventory table
+	const [selectedItem, setSelectedItem] = useState( null ); //holds the selected row contents
 
-  // loads the database table into items 
-  useEffect(() => { 
-    window.electron.getAllItems()
-      .then(setInventory)
-      .catch(err => console.error('Failed to fetch inventory:', err));
-  }, []);
+	// loads the database table into items 
+	useEffect(() => { 
+		globalThis.electron.getAllItems()
+		.then(setInventory)
+		.catch(err => console.error('Failed to fetch inventory:', err));
+	}, []);
 
-  // when double clicking the selected item
-  const handleEdit = ( item ) => {
-    console.log("Editing item: ", item);
+	// when double clicking the selected item
+	const handleEdit = ( item ) => {
+		console.log("Editing item: ", item);
 
-    const modal = new bootstrap.Modal(
-      document.getElementById( "itemModal" )
-    );
+		const modal = new bootstrap.Modal(
+			document.getElementById( "editItemModal" )
+		);
 
-    modal.show();  
-  }
+		modal.show();  
+	}
 
-  return (
-    <>
-    <Profile/>
+	return (
+		<>
+		<button
+			className="btn btn-success"
+			data-bs-toggle="modal"
+			data-bs-target="#addItemModal"
+		>
+			Add Item
+		</button>
 
-    <Table 
-      items={ inventory }
-      selectedItem = { selectedItem } 
-      setSelectedItem = { setSelectedItem } 
-      onEdit = { handleEdit }
-    />
+		<Table 
+			items = { inventory }
+			selectedItem = { selectedItem } 
+			setSelectedItem = { setSelectedItem } 
+			onEdit = { handleEdit }
+		/>
 
-    <ItemModal 
-      modalItem = { selectedItem }
-      setInventory={setInventory}
-    />
+		<EditItem 
+			modalItem = { selectedItem }
+			setInventory = { setInventory }
+			fieldDefs = { fieldDefs }
+		/>
 
-    <h1> test 2 </h1>
-    </>
-  );
+		<AddItem
+			inventory = { inventory }
+			setInventory = { setInventory }
+			fieldDefs = { fieldDefs }
+		/>
+
+		</>
+	);
 }
 
 const container = document.getElementById("root");
