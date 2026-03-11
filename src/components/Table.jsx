@@ -1,7 +1,7 @@
 // table for testing
 import React from 'react';
 
-const Table = ({ items }) => {
+const Table = ({ items, selectedItem, setSelectedItem, onEdit }) => {
   if (!items.length) return <p>No items found.</p>;
 
   return (
@@ -22,17 +22,23 @@ const Table = ({ items }) => {
       </thead>
       <tbody>
         {items.map(item => (
-          <tr key={item.Index_ID}>
-            <td>{item.Index_ID}</td>
-            <td>{item.Type}</td>
-            <td>{item.Property_Description}</td>
-            <td>{item.Brand}</td>
-            <td>{item.Property_Number}</td>
-            <td>{item.Acquisition_Date}</td>
-            <td>{item.Acquisition_Cost}</td>
-            <td>{item.Memorandum_Receipt}</td>
-            <td>{item.District}</td>
-            <td>{item.Location}</td>
+          <tr
+            key = { item.Index_ID }
+            onClick = { () => setSelectedItem( item ) }
+            onDoubleClick = { () => onEdit( item ) }
+            className = { selectedItem?.Index_ID === item.Index_ID ? "table-primary" : "" }
+            style = {{ cursor : "pointer" }}
+          >
+            <td>{item.Index_ID || "N/A"}</td>
+            <td>{item.Type || "N/A"}</td>
+            <td>{item.Property_Description || "N/A"}</td>
+            <td>{item.Brand || "N/A"}</td>
+            <td>{item.Property_Number || "N/A"}</td>
+            <td>{item.Acquisition_Date || "N/A"}</td>
+            <td>{item.Acquisition_Cost || "N/A"}</td>
+            <td>{item.Memorandum_Receipt || "N/A"}</td>
+            <td>{item.District || "N/A"}</td>
+            <td>{item.Equipment_Location || "N/A"}</td>
           </tr>
         ))}
       </tbody>

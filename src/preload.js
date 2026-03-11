@@ -5,5 +5,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('electron', {
-  getAllItems: () => ipcRenderer.invoke('get-all-items')
+  getAllItems: () => ipcRenderer.invoke('get-all-items'),
+  updateItem: (item) => ipcRenderer.invoke("update-item", item),
 });

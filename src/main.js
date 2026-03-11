@@ -71,4 +71,44 @@ ipcMain.handle('get-all-items', async () => {
   });
 });
 
+// for updating edited items
+ipcMain.handle('update-item', async (event, item) => {
+  const db = getDb();
+
+  return new Promise((resolve, reject) => {
+    const query = `
+      UPDATE Catalogue
+      SET 
+        Property_Description = ?,
+        Brand = ?,
+        Property_Number = ?,
+        Type = ?,
+        Acquisition_Date = ?,
+        Acquisition_Cost = ?,
+        Memorandum_Receipt = ?,
+        District = ?,
+        Equipment_Location = ?
+      WHERE Index_ID = ?
+    `;
+
+    const params = [
+      item.Property_Description,
+      item.Brand,
+      item.Property_Number,
+      item.Type,
+      item.Acquisition_Date,
+      item.Acquisition_Cost,
+      item.Memorandum_Receipt,
+      item.District,
+      item.Equipment_Location,
+      item.Index_ID   // WHERE clause
+    ];
+
+    db.run(query, params, function(err) {
+      if (err) reject(err);
+      else resolve({ success: true });
+    });
+  });
+});
+
 
