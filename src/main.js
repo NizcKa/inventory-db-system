@@ -193,4 +193,23 @@ ipcMain.handle('generate-next-item-id', async (event, type) => {
   });
 });
 
+// deletes item based on index ID
+ipcMain.handle('delete-item', async (event, indexID) => {
+  const db = getDb();
+
+  return new Promise((resolve, reject) => {
+    const query = `
+      DELETE FROM Catalogue 
+      WHERE Index_ID = ?
+    `;
+
+    db.run(query, [indexID], function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({ success: true });
+      }
+    });
+  });
+});
 

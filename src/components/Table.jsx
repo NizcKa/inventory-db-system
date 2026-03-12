@@ -1,13 +1,21 @@
-// table for testing
 import React from 'react';
 
-const Table = ({ items, selectedItem, setSelectedItem, onEdit }) => { //should be functional?
+const Table = ({
+  items,
+  selectedItem,
+  setSelectedItem,
+  onEdit,
+  deleteMode = false,
+  selectedForDelete = [],
+  onToggleSelect = () => {}
+}) => {
   if (!items.length) return <p>No items found.</p>;
 
   return (
     <table className="table table-striped table-bordered">
       <thead className="table-light">
         <tr>
+          {deleteMode && <th>Select</th>}
           <th>Item ID</th>
           <th>Type</th>
           <th>Description</th>
@@ -23,12 +31,21 @@ const Table = ({ items, selectedItem, setSelectedItem, onEdit }) => { //should b
       <tbody>
         {items.map(item => (
           <tr
-            key = { item.Index_ID }
-            onClick = { () => setSelectedItem( item ) }
-            onDoubleClick = { () => onEdit( item ) }
-            className = { selectedItem?.Index_ID === item.Index_ID ? "table-primary" : "" }
-            style = {{ cursor : "pointer" }}
+            key={item.Index_ID}
+            onClick={() => !deleteMode && setSelectedItem(item)}
+            onDoubleClick={() => !deleteMode && onEdit(item)}
+            className={selectedItem?.Index_ID === item.Index_ID ? "table-primary" : ""}
+            style={{ cursor: deleteMode ? "default" : "pointer" }}
           >
+            {deleteMode && (
+              <td>
+                <input
+                  type="checkbox"
+                  checked={selectedForDelete.includes(item.Index_ID)}
+                  onChange={() => onToggleSelect(item.Index_ID)}
+                />
+              </td>
+            )}
             <td>{item.Index_ID || "N/A"}</td>
             <td>{item.Type || "N/A"}</td>
             <td>{item.Property_Description || "N/A"}</td>
