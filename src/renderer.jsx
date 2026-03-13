@@ -3,11 +3,12 @@ import { createRoot } from 'react-dom/client';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as bootstrap from "bootstrap";
+import "./index.css";
 
 // item components
 import { fieldDefs } from './FieldDefs';
 import Table from './components/Table';
-import ItemForm from './components/ItemForm';
+import EditItem from './components/EditItem';
 import AddItem from './components/AddItem';
 import ConfirmModal from './components/ConfirmModal';
 
@@ -19,6 +20,10 @@ const App = () => {
 
 	const [deleteMode, setDeleteMode] = useState(false); // toggle for selection
 	const [itemsPendingDelete, setItemsPendingDelete] = useState([]); // array of items pending deletion
+	const [sortConfig, setSortConfig] = useState({ //column to be sorted and direction of sorting
+  		key: null,       
+  		direction: 'asc'  
+	});
 
 	// loads the database table into items 
 	useEffect(() => { 
@@ -32,7 +37,7 @@ const App = () => {
 		console.log("Editing item: ", item);
 
 		const modal = new bootstrap.Modal(
-			document.getElementById( "itemFormModal" )
+			document.getElementById( "editItemModal" )
 		);
 
 		modal.show();  
@@ -54,7 +59,6 @@ const App = () => {
 	// deletes all items pending deletion
 	const handleDelete = async () => {
 		try {
-
 			for (const id of itemsPendingDelete) {
 				await globalThis.electron.deleteItem(id);
 			}
@@ -81,20 +85,32 @@ const App = () => {
 		const modal = new bootstrap.Modal(
 			document.getElementById("confirmDeleteModal")
 		);
-
 		modal.show();
 	};
 
+	// gives the delete popup from the edit form 
 	const handleFormDelete = (id) => {
-
 		const itemModal = bootstrap.Modal.getInstance(
-			document.getElementById("itemFormModal")
+			document.getElementById("editItemModal")
 		);
-
 		if (itemModal) itemModal.hide();
-
 		promptDelete(id);
+	};
 
+	// handles sorting control
+	const handleSort = (columnKey) => {
+		if (sortConfig.key === columnKey) {
+			// asc -> desc -> none
+			if (sortConfig.direction === 'asc') {
+				setSortConfig({ key: columnKey, direction: 'desc' });
+			} else if (sortConfig.direction === 'desc') {
+				setSortConfig({ key: null, direction: null }); // back to no sorting
+			} else {
+				setSortConfig({ key: columnKey, direction: 'asc' });
+			}
+		} else {
+			setSortConfig({ key: columnKey, direction: 'asc' });
+		}
 	};
 
 	// filtered items based on search
@@ -105,13 +121,45 @@ const App = () => {
 			item.Type?.toLowerCase().includes(query) ||
 			item.Property_Description?.toLowerCase().includes(query) ||
 			item.Brand?.toLowerCase().includes(query) ||
-			item.Property_Number?.toLowerCase().includes(query)
+			item.Property_Number?.toLowerCase().includes(query) ||
+			item.District?.toLowerCase().includes(query) 
 		);
 	});
 
+	// sort the inventory based on either date or ascending/descending order
+	const sortedInventory = [...filteredInventory].sort((a, b) => {
+	if (!sortConfig.key || !sortConfig.direction) return 0; // no sorting
+
+	let aVal = a[sortConfig.key];
+	let bVal = b[sortConfig.key];
+
+	// for null values
+	if (!aVal) aVal = '';
+	if (!bVal) bVal = '';
+
+	// for numeric columns
+	if (sortConfig.key === 'Acquisition_Cost') {
+		return sortConfig.direction === 'asc'
+		? aVal - bVal
+		: bVal - aVal;
+	}
+
+	// for date columns (yyyy-mm-dd)
+	if (sortConfig.key === 'Acquisition_Date') {
+		return sortConfig.direction === 'asc'
+		? aVal.localeCompare(bVal)
+		: bVal.localeCompare(aVal);
+	}
+
+	// default string comparison for other text fields
+	return sortConfig.direction === 'asc'
+		? aVal.toString().localeCompare(bVal.toString())
+		: bVal.toString().localeCompare(aVal.toString());
+	});
+
 	return (
-		<div> 
-			<div className="d-flex justify-content-between align-items-center mb-2">
+		<div className="app container d-flex flex-column align-items-center p-3">
+			<div className="d-flex flex-wrap justify-content-center mb-3 gap-2 w-100">
 				<button
 					className="btn btn-success"
 					data-bs-toggle="modal"
@@ -150,30 +198,34 @@ const App = () => {
 				/>
 			</div>
 			
-			<Table 
-				items = { filteredInventory }
-				selectedItem = { selectedItem } 
-				setSelectedItem = { setSelectedItem } 
-				onEdit = { handleEdit }
-				deleteMode={deleteMode}
-				selectedForDelete={itemsPendingDelete}
-				onToggleSelect={handleToggleSelect}
-			/>
+			<div className="d-flex flex-wrap justify-content-center mb-3 gap-2 w-100">
+				<Table 
+					items = { sortedInventory }
+					selectedItem = { selectedItem } 
+					setSelectedItem = { setSelectedItem } 
+					onEdit = { handleEdit }
+					deleteMode={deleteMode}
+					selectedForDelete={itemsPendingDelete}
+					onToggleSelect={handleToggleSelect}
+					onSort={handleSort}      // tells the table how to sort when header clicked
+					sortConfig={sortConfig}  // tells the table which arrow to display
+				/>
 
-			<ItemForm
-				modalItem = { selectedItem }
-				setInventory = { setInventory }
-				setSelectedItem = { setSelectedItem } 
-				fieldDefs = { fieldDefs }
-				onDelete={ handleFormDelete }
-				
-			/>
+				<EditItem
+					modalItem = { selectedItem }
+					setInventory = { setInventory }
+					setSelectedItem = { setSelectedItem } 
+					fieldDefs = { fieldDefs }
+					onDelete={ handleFormDelete }
+					
+				/>
 
-			<AddItem
-				inventory = { inventory }
-				setInventory = { setInventory }
-				fieldDefs = { fieldDefs }
-			/>
+				<AddItem
+					inventory = { inventory }
+					setInventory = { setInventory }
+					fieldDefs = { fieldDefs }
+				/>
+			</div>
 		</div>
 	);
 }

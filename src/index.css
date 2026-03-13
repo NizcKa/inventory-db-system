@@ -1,8 +1,32 @@
-body {
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif;
-  margin: auto;
-  max-width: 38rem;
-  padding: 2rem;
+
+
+/* table styling */
+
+.table {
+    width: 100%;              
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    border-radius: 0.3rem;     
+}
+
+.table th {
+  vertical-align: middle; 
+  text-align: center;     
+}
+
+.table th:nth-child(3),
+.table td:nth-child(3) {
+  text-align: left;
+}
+
+.table tbody tr:not(.table-primary):hover > *  {
+    background-color: #b9dfff4d;
+}
+
+.table th:not(.table-primary):hover > *  {
+    background-color: #abd9ff50;
+}
+
+.table td input[type="checkbox"] {
+    transform: scale(1.5);
+    margin: auto;  
 }

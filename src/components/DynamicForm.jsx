@@ -1,4 +1,4 @@
-// dynamic form generation based on current row state
+// dynamic form generation used for adding and editing items
 import React, { useEffect } from 'react';
 
 const DynamicForm = ({ formData, setFormData, fieldDefs }) => {

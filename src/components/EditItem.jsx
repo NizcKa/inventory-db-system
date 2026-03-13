@@ -1,8 +1,8 @@
-// Modal popup for editing selected item
+// modal popup for editing selected item
 import React, { useState, useEffect } from 'react';
 import DynamicForm from './DynamicForm';
 
-const ItemForm = ({ modalItem, setInventory, fieldDefs, onDelete }) => { // mostly done (just needs cleanup)
+const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete }) => { // mostly done (just needs cleanup)
 	const [formData, setFormData] = useState({});
 	const [message, setMessage] = useState("");
 	const [originalData, setOriginalData] = useState({});
@@ -40,7 +40,7 @@ const ItemForm = ({ modalItem, setInventory, fieldDefs, onDelete }) => { // most
 	if ( !modalItem ) return null;
 
 	return (
-		<div className="modal fade" id="itemFormModal" tabIndex="-1">
+		<div className="modal fade" id="editItemModal" tabIndex="-1">
 			<div className="modal-dialog modal-lg">
 				<div className="modal-content">
 
@@ -80,4 +80,4 @@ const ItemForm = ({ modalItem, setInventory, fieldDefs, onDelete }) => { // most
 	);
 };
 
-export default ItemForm;
+export default EditItem;

@@ -1,3 +1,4 @@
+// modal for delete prompt
 import React from "react";
 
 const ConfirmModal = ({ onConfirm, message }) => {

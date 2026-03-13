@@ -1,4 +1,4 @@
-// Modal popup for adding a new item
+// modal popup for adding a new item
 import React, { useState } from 'react';
 import DynamicForm from './DynamicForm';
 
@@ -11,11 +11,20 @@ const AddItem = ({ inventory, setInventory, fieldDefs}) => { // working, no vali
 		e.preventDefault();
 
 		try {
+			// convert all string fields in formData to uppercase
+			const upperCaseData = Object.fromEntries(
+				Object.entries(formData).map(([key, value]) => [
+					key,
+					typeof value === "string" ? value.toUpperCase() : value
+				])
+			);
+
 			const itemId =  await globalThis.electron.generateNextItemId(formData.Type);
 			const newItem = {
-				...formData,
+				...upperCaseData,
 				Index_ID: itemId
 			};
+
 			await globalThis.electron.addItem( newItem );
 
 			// refresh inventory list
