@@ -1,9 +1,8 @@
 // Modal popup for editing selected item
 import React, { useState, useEffect } from 'react';
-import * as bootstrap from "bootstrap";
 import DynamicForm from './DynamicForm';
 
-const ItemForm = ({ modalItem, setInventory, fieldDefs }) => { // mostly done (just needs cleanup)
+const ItemForm = ({ modalItem, setInventory, fieldDefs, onDelete }) => { // mostly done (just needs cleanup)
 	const [formData, setFormData] = useState({});
 	const [message, setMessage] = useState("");
 	const [originalData, setOriginalData] = useState({});
@@ -61,11 +60,17 @@ const ItemForm = ({ modalItem, setInventory, fieldDefs }) => { // mostly done (j
 					{message && (<p className="text-success text-center mb-2">{message}</p>)}
 
 					<div className="modal-footer">
+						<button // Delete record button
+							className="btn btn-outline-danger"
+							onClick={() => onDelete(modalItem.Index_ID)}
+						>
+							Delete Record
+						</button>
 						<button className="btn btn-secondary" data-bs-dismiss="modal">
-						Cancel
+							Cancel
 						</button>
 						<button className="btn btn-primary" onClick={handleSave} disabled={!isFormChanged}>
-						Save Changes
+							Save Changes
 						</button>
 					</div>
 

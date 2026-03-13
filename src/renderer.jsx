@@ -18,7 +18,7 @@ const App = () => {
 	const [searchQuery, setSearchQuery] = useState(""); // search state
 
 	const [deleteMode, setDeleteMode] = useState(false); // toggle for selection
-	const [selectedForDelete, setSelectedForDelete] = useState([]); // IDs of rows selected
+	const [itemsPendingDelete, setItemsPendingDelete] = useState([]); // array of items pending deletion
 
 	// loads the database table into items 
 	useEffect(() => { 
@@ -41,30 +41,31 @@ const App = () => {
 	// Toggle delete mode
 	const handleToggleDeleteMode = () => {
 		setDeleteMode((prev) => !prev);
-		setSelectedForDelete([]);
+		setItemsPendingDelete([]);
 	};
 
 	// toggle a row's selection for deletion
 	const handleToggleSelect = (id) => {
-		setSelectedForDelete((prev) =>
+		setItemsPendingDelete((prev) =>
 			prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
 		);
 	};
 
-
-	const handleDeleteSelected = async () => {
+	// deletes all items pending deletion
+	const handleDelete = async () => {
 		try {
-			for (const id of selectedForDelete) { // 
+
+			for (const id of itemsPendingDelete) {
 				await globalThis.electron.deleteItem(id);
 			}
 
 			const updatedInventory = await globalThis.electron.getAllItems();
 			setInventory(updatedInventory);
-			
-			// Reset states
-			setSelectedForDelete([]);
+
+			setItemsPendingDelete([]);
 			setDeleteMode(false);
 			setSelectedItem(null);
+			console.log("item deleted");
 
 		} catch (err) {
 			console.error("Failed to delete items:", err);
@@ -72,11 +73,28 @@ const App = () => {
 	};
 
 	// triggers the modal
-	const promptDelete = () => {
-		if (!selectedForDelete.length) return;
-		const modalElement = document.getElementById('confirmDeleteModal');
-		const modal = new bootstrap.Modal(modalElement);
+	const promptDelete = (ids) => {
+		const targets = Array.isArray(ids) ? ids : [ids]; // ensures that target is always an array
+
+		setItemsPendingDelete(targets);
+
+		const modal = new bootstrap.Modal(
+			document.getElementById("confirmDeleteModal")
+		);
+
 		modal.show();
+	};
+
+	const handleFormDelete = (id) => {
+
+		const itemModal = bootstrap.Modal.getInstance(
+			document.getElementById("itemFormModal")
+		);
+
+		if (itemModal) itemModal.hide();
+
+		promptDelete(id);
+
 	};
 
 	// filtered items based on search
@@ -109,18 +127,18 @@ const App = () => {
 					{deleteMode ? "Cancel Delete" : "Delete Items"}
 				</button>
 
-				{deleteMode && selectedForDelete.length > 0 && (
+				{deleteMode && itemsPendingDelete.length > 0 && (
 					<button
 						className="btn btn-danger ms-2"
-						onClick={promptDelete} // Trigger Bootstrap modal instead of window.confirm
+						onClick={() => promptDelete(itemsPendingDelete)} // Trigger Bootstrap modal instead of window.confirm
 					>
-					Confirm Delete ({selectedForDelete.length})
+					Confirm Delete ({itemsPendingDelete.length})
 					</button>
 				)}
 
-				<ConfirmModal 
-					onConfirm={handleDeleteSelected} 
-					message={`Are you sure you want to delete ${selectedForDelete.length} item(s)?`} 
+				<ConfirmModal
+					onConfirm={handleDelete}
+					message={`Are you sure you want to delete ${itemsPendingDelete.length} item(s)?`}
 				/>
 
 				<input // search bar
@@ -138,7 +156,7 @@ const App = () => {
 				setSelectedItem = { setSelectedItem } 
 				onEdit = { handleEdit }
 				deleteMode={deleteMode}
-				selectedForDelete={selectedForDelete}
+				selectedForDelete={itemsPendingDelete}
 				onToggleSelect={handleToggleSelect}
 			/>
 
@@ -147,6 +165,8 @@ const App = () => {
 				setInventory = { setInventory }
 				setSelectedItem = { setSelectedItem } 
 				fieldDefs = { fieldDefs }
+				onDelete={ handleFormDelete }
+				
 			/>
 
 			<AddItem
