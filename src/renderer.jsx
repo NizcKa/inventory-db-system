@@ -10,7 +10,6 @@ import { fieldDefs } from './FieldDefs';
 import Table from './components/Table';
 import EditItem from './components/EditItem';
 import AddItem from './components/AddItem';
-import ConfirmModal from './components/ConfirmModal';
 import SearchBars from "./components/SearchBars";
 
 
@@ -55,10 +54,13 @@ const App = () => {
 		);
 	};
 
-	// deletes all items pending deletion
-	const handleDelete = async () => {
+	// deletes all items pending deletion (both single and bulk)
+	const handleDelete = async (item) => {
+  		const ids = Array.isArray(item) ? item : (itemsPendingDelete || []); //ensures ids are always an array
+		console.log("handleDelete called with ids:", item); 
+
 		try {
-			for (const id of itemsPendingDelete) {
+			for (const id of ids) {
 				await globalThis.electron.deleteItem(id);
 			}
 
@@ -75,25 +77,14 @@ const App = () => {
 		}
 	};
 
-	// triggers the modal
-	const promptDelete = (ids) => {
-		const targets = Array.isArray(ids) ? ids : [ids]; // ensures that target is always an array
-
-		setItemsPendingDelete(targets);
-
-		const modal = new bootstrap.Modal(
-			document.getElementById("confirmDeleteModal")
-		);
-		modal.show();
-	};
-
 	// gives the delete popup from the edit form 
 	const handleFormDelete = (id) => {
 		const itemModal = bootstrap.Modal.getInstance(
 			document.getElementById("editItemModal")
 		);
 		if (itemModal) itemModal.hide();
-		promptDelete(id);
+		
+		handleDelete([id]); //passes the single id as an array to delete
 	};
 
 	// handles sorting control
@@ -137,72 +128,74 @@ const App = () => {
 
 	// sort the inventory based on either date or ascending/descending order
 	const sortedInventory = [...filteredInventory].sort((a, b) => {
-	if (!sortConfig.key || !sortConfig.direction) return 0; // no sorting
+		if (!sortConfig.key || !sortConfig.direction) return 0; // no sorting
 
-	let aVal = a[sortConfig.key];
-	let bVal = b[sortConfig.key];
+		let aVal = a[sortConfig.key];
+		let bVal = b[sortConfig.key];
 
-	// for null values
-	if (!aVal) aVal = '';
-	if (!bVal) bVal = '';
+		// for null values
+		if (!aVal) aVal = '';
+		if (!bVal) bVal = '';
 
-	// for numeric columns
-	if (sortConfig.key === 'Acquisition_Cost') {
+		// for numeric columns
+		if (sortConfig.key === 'Acquisition_Cost') {
+			return sortConfig.direction === 'asc'
+			? aVal - bVal
+			: bVal - aVal;
+		}
+
+		// for date columns (yyyy-mm-dd)
+		if (sortConfig.key === 'Acquisition_Date') {
+			return sortConfig.direction === 'asc'
+			? aVal.localeCompare(bVal)
+			: bVal.localeCompare(aVal);
+		}
+
+		// default string comparison for other text fields
 		return sortConfig.direction === 'asc'
-		? aVal - bVal
-		: bVal - aVal;
-	}
-
-	// for date columns (yyyy-mm-dd)
-	if (sortConfig.key === 'Acquisition_Date') {
-		return sortConfig.direction === 'asc'
-		? aVal.localeCompare(bVal)
-		: bVal.localeCompare(aVal);
-	}
-
-	// default string comparison for other text fields
-	return sortConfig.direction === 'asc'
-		? aVal.toString().localeCompare(bVal.toString())
-		: bVal.toString().localeCompare(aVal.toString());
+			? aVal.toString().localeCompare(bVal.toString())
+			: bVal.toString().localeCompare(aVal.toString());
 	});
 
 	return (
-		<div className="app container d-flex flex-column align-items-center p-3">
-			<div className="d-flex flex-wrap justify-content-center mb-3 gap-2 w-100">
-				<button
-					className="btn btn-success"
-					data-bs-toggle="modal"
-					data-bs-target="#addItemModal"
-				>
-					Add Item
-				</button>
+		<div className="app container d-flex flex-column align-items-center p-3 pt-3">
+			<div
+				className="top-bar sticky-top d-flex flex-column align-items-center w-100 p-2"
+				style={{ zIndex: 1000, backgroundColor: "white", boxShadow: "0 2px 5px rgba(0,0,0,0.1)" }}
+			>
+				<div className="mb-2">
+					<SearchBars
+						fieldDefs={fieldDefs}
+						searchFilters={searchFilters}
+						onSearchChange={handleSearchChange}
+					/>
+				</div>
 
-				<button
-					className={`btn ${deleteMode ? "btn-secondary" : "btn-danger"}`}
-					onClick={ handleToggleDeleteMode }
-				>
-					{deleteMode ? "Cancel Delete" : "Delete Items"}
-				</button>
-
-				{deleteMode && itemsPendingDelete.length > 0 && (
+				<div className="d-flex flex-wrap gap-2">
 					<button
-						className="btn btn-danger ms-2"
-						onClick={() => promptDelete(itemsPendingDelete)} // Trigger Bootstrap modal instead of window.confirm
+						className="btn btn-success"
+						data-bs-toggle="modal"
+						data-bs-target="#addItemModal"
 					>
-					Confirm Delete ({itemsPendingDelete.length})
+					Add Item
 					</button>
-				)}
 
-				<ConfirmModal
-					onConfirm={ handleDelete }
-					message={`Are you sure you want to delete ${itemsPendingDelete.length} item(s)?`}
-				/>
+					<button
+						className={`btn ${deleteMode ? "btn-secondary" : "btn-danger"}`}
+						onClick={handleToggleDeleteMode}
+					>
+						{deleteMode ? "Cancel Delete" : "Delete Items"}
+					</button>
 
-				<SearchBars
-					fieldDefs={fieldDefs}
-					searchFilters={searchFilters}
-					onSearchChange={handleSearchChange}
-				/>
+					{deleteMode && itemsPendingDelete.length > 0 && (
+					<button
+						className="btn btn-danger"
+						onClick={handleDelete}
+					>
+						Confirm Delete ({itemsPendingDelete.length})
+					</button>
+					)}
+				</div>
 			</div>
 			
 			<div className="d-flex flex-wrap justify-content-center mb-3 gap-2 w-100">
