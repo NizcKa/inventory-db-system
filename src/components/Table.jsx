@@ -1,3 +1,4 @@
+// inventory table
 import React from 'react';
 
 const Table = ({
@@ -43,14 +44,14 @@ const Table = ({
 						style={{ cursor: 'pointer', userSelect: 'none' }}
 						onClick={() => onSort('Acquisition_Date')}
 					>
-						Acquisition Date <span style={{ fontSize: '0.75rem', marginLeft: '0.25rem' }}>{getSortArrow('Acquisition_Date')}</span>
+						Acquisition Date {getSortArrow('Acquisition_Date')}
 					</th>
 					<th
 						className="text-center align-middle"
 						style={{ cursor: 'pointer', userSelect: 'none' }}
 						onClick={() => onSort('Acquisition_Cost')}
 					>
-						Cost <span style={{ fontSize: '0.75rem', marginLeft: '0.25rem' }}>{getSortArrow('Acquisition_Cost')}</span>
+						Cost {getSortArrow('Acquisition_Cost')} 
 					</th>
 					<th>Memorandum</th>
 					<th>District</th>

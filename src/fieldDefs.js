@@ -1,16 +1,16 @@
   // definition of fields to render
   export const fieldDefs = [
-    { label: "Description", key: "Property_Description" },
-    { label: "Brand", key: "Brand" },
-    { label: "Property Number", key: "Property_Number" },
-    { 
-      label: "Type", 
+    { label: "Type", 
       key: "Type", 
-      options: ["ICT EQUIPMENT", "OFFICE EQUIPMENT"]  // dropdown options
+      options: ["ICT EQUIPMENT", "OFFICE EQUIPMENT"],  // dropdown options
+      searchable: true
     },
+    { label: "Description", key: "Property_Description", searchable: true },
+    { label: "Brand", key: "Brand", searchable: true },
+    { label: "Property Number", key: "Property_Number", searchable: true },
     { label: "Acquisition Date", key: "Acquisition_Date", type: "date" },
     { label: "Cost", key: "Acquisition_Cost", type: "number" },
-    { label: "Memorandum", key: "Memorandum_Receipt" },
+    { label: "Memorandum", key: "Memorandum_Receipt", },
     { label: "District", 
       key: "District",
       options: [
@@ -21,7 +21,8 @@
         "SOUTH DISTRICT HEALTH CENTER",
         "EAST DISTRICT HEALTH CENTER",
         "WEST DISTRICT HEALTH CENTER"
-      ]
+      ],
+      searchable: true
     },
     { label: "Location", key: "Equipment_Location" },
   ];

@@ -11,12 +11,13 @@ import Table from './components/Table';
 import EditItem from './components/EditItem';
 import AddItem from './components/AddItem';
 import ConfirmModal from './components/ConfirmModal';
+import SearchBars from "./components/SearchBars";
 
 
 const App = () => {
 	const [inventory, setInventory] = useState([]); // holds the inventory table
 	const [selectedItem, setSelectedItem] = useState( null ); //holds the selected row contents
-	const [searchQuery, setSearchQuery] = useState(""); // search state
+	const [searchFilters, setSearchFilters] = useState({}); // column-based search state
 
 	const [deleteMode, setDeleteMode] = useState(false); // toggle for selection
 	const [itemsPendingDelete, setItemsPendingDelete] = useState([]); // array of items pending deletion
@@ -35,11 +36,9 @@ const App = () => {
 	// when double clicking the selected item
 	const handleEdit = ( item ) => {
 		console.log("Editing item: ", item);
-
 		const modal = new bootstrap.Modal(
 			document.getElementById( "editItemModal" )
 		);
-
 		modal.show();  
 	}
 
@@ -113,17 +112,27 @@ const App = () => {
 		}
 	};
 
+	// handles search state for each column in search filters
+	const handleSearchChange = (column, value) => {
+		setSearchFilters((prev) => ({
+			...prev,
+			[column]: value
+		}));
+	};
+
 	// filtered items based on search
 	const filteredInventory = inventory.filter(item => {
-		const query = searchQuery.toLowerCase();
-		return (
-			item.Index_ID?.toLowerCase().includes(query) ||
-			item.Type?.toLowerCase().includes(query) ||
-			item.Property_Description?.toLowerCase().includes(query) ||
-			item.Brand?.toLowerCase().includes(query) ||
-			item.Property_Number?.toLowerCase().includes(query) ||
-			item.District?.toLowerCase().includes(query) 
-		);
+		return Object.entries(searchFilters).every(([column, value]) => {
+			if (!value) return true;
+
+			const cell = item[column];
+			if (!cell) return false;
+
+			return cell
+				.toString()
+				.toLowerCase()
+				.includes(value.toLowerCase());
+		});
 	});
 
 	// sort the inventory based on either date or ascending/descending order
@@ -170,7 +179,7 @@ const App = () => {
 
 				<button
 					className={`btn ${deleteMode ? "btn-secondary" : "btn-danger"}`}
-					onClick={handleToggleDeleteMode}
+					onClick={ handleToggleDeleteMode }
 				>
 					{deleteMode ? "Cancel Delete" : "Delete Items"}
 				</button>
@@ -185,30 +194,28 @@ const App = () => {
 				)}
 
 				<ConfirmModal
-					onConfirm={handleDelete}
+					onConfirm={ handleDelete }
 					message={`Are you sure you want to delete ${itemsPendingDelete.length} item(s)?`}
 				/>
 
-				<input // search bar
-					type="text"
-					className="form-control w-50"
-					placeholder="Search inventory..."
-					value={searchQuery}
-					onChange={(e) => setSearchQuery(e.target.value)}
+				<SearchBars
+					fieldDefs={fieldDefs}
+					searchFilters={searchFilters}
+					onSearchChange={handleSearchChange}
 				/>
 			</div>
 			
 			<div className="d-flex flex-wrap justify-content-center mb-3 gap-2 w-100">
 				<Table 
-					items = { sortedInventory }
+					items = { sortedInventory } //passes the sorted inventory onto the table
 					selectedItem = { selectedItem } 
 					setSelectedItem = { setSelectedItem } 
 					onEdit = { handleEdit }
-					deleteMode={deleteMode}
-					selectedForDelete={itemsPendingDelete}
-					onToggleSelect={handleToggleSelect}
-					onSort={handleSort}      // tells the table how to sort when header clicked
-					sortConfig={sortConfig}  // tells the table which arrow to display
+					deleteMode={ deleteMode }
+					selectedForDelete={ itemsPendingDelete }
+					onToggleSelect={ handleToggleSelect }
+					onSort={ handleSort }      // tells the table how to sort when header clicked
+					sortConfig={ sortConfig }  // tells the table which arrow to display
 				/>
 
 				<EditItem
