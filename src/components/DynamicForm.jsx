@@ -20,9 +20,11 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
 
     return (
         <>
-        {fieldDefs.map(({ label, key, type, options }) => (
+        {fieldDefs.map(({ label, key, type, options, required }) => (
             <div className="mb-3" key={key}>
-                <label className="form-label">{label}</label>
+                <label className="form-label">
+                    {label} {required && <span className="text-danger">*</span>}
+                </label>
 
                 {options ? (
                     <select
@@ -30,6 +32,7 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
                         name={key}
                         value={formData[key] || ""}
                         onChange={handleChange}
+                    	required={required}
                     >
                         <option value="" disabled hidden>
                             Select {label}
@@ -45,11 +48,15 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
                         name={key}
                         value={formData[key] || ""}
                         onChange={handleChange}
+                    	required={required}
                     />
                 )}
 
             </div>
         ))}
+        <p className="text-muted text-center mb-2">
+	        All entries are automatically converted to uppercase when saved.
+        </p>
         </>
     );
 };

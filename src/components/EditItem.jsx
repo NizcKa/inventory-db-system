@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import DynamicForm from './DynamicForm';
 
-const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete }) => { // mostly done (just needs cleanup)
+const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete, onSave }) => { // mostly done (just needs cleanup)
 	const [formData, setFormData] = useState({});
 	const [message, setMessage] = useState("");
 	const [originalData, setOriginalData] = useState({});
@@ -18,18 +18,17 @@ const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete }) => { // most
 		setMessage(""); 
 	}, [modalItem]);
 
-	// saves edit changes to the database
-	const handleSave = async () => {
+	// after save behaviour
+	const handleSaveClick = async () => {
 		try {
-			await globalThis.electron.updateItem( formData );
-			const updatedInventory = await globalThis.electron.getAllItems();
-			setInventory(updatedInventory);
+			await onSave(formData); 
 
-			setOriginalData({ ...formData }); // form baseline updated after save
-			setMessage("Item Saved Succesfully!");
+			setOriginalData({ ...formData });
+			setMessage("Item Saved Successfully!");
+
 			setTimeout(() => setMessage(""), 2500);
 		} catch (err) {
-			console.error("Failed to update item:", err);
+			console.error(err);
 		}
 	};
 
@@ -72,7 +71,7 @@ const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete }) => { // most
 							Cancel
 						</button>
 
-						<button className="btn btn-primary" onClick={handleSave} disabled={!isFormChanged}>
+						<button className="btn btn-primary" onClick={handleSaveClick} disabled={!isFormChanged}>
 							Save Changes
 						</button>
 					</div>

@@ -44,6 +44,53 @@ const App = () => {
 		modal.show();  
 	}
 
+	// saves edit changes to the database
+	const handleSave = async (formData) => {
+		try { 
+			const upperCaseData = Object.fromEntries(
+				Object.entries(formData).map(([key, value]) => [
+					key,
+					typeof value === "string" ? value.toUpperCase() : value
+				])
+			);
+
+			await globalThis.electron.updateItem(upperCaseData);
+
+			const updatedInventory = await globalThis.electron.getAllItems();
+			setInventory(updatedInventory);
+
+		} catch (err) {
+			console.error("Failed to update item:", err);
+		}
+	};
+
+	// add new item to database
+	const handleAdd = async (formData) => {
+		try {
+			const upperCaseData = Object.fromEntries(
+				Object.entries(formData).map(([key, value]) => [
+					key,
+					typeof value === "string" ? value.toUpperCase() : value
+				])
+			);
+
+			const itemId =  await globalThis.electron.generateNextItemId(formData.Type);
+			const newItem = {
+				...upperCaseData,
+				Index_ID: itemId
+			};
+
+			await globalThis.electron.addItem(newItem);
+
+			// refresh inventory list
+			const updatedInventory = await globalThis.electron.getAllItems();
+			setInventory(updatedInventory);
+
+		} catch (err) {
+			console.error("Failed to add item:", err);
+		}
+	};
+
 	// Toggle delete mode
 	const handleToggleDeleteMode = () => {
 		setDeleteMode((prev) => !prev);
@@ -51,7 +98,7 @@ const App = () => {
 	};
 
 	// toggle a row's selection for deletion
-	const handleToggleSelect = (id) => {
+	const handleDeleteSelect = (id) => {
 		setItemsPendingDelete(prev =>
 			prev.includes(id)
 				? prev.filter(i => i !== id) // remove if already selected
@@ -219,7 +266,7 @@ const App = () => {
 					onEdit = { handleEdit }
 					deleteMode={ deleteMode }
 					selectedForDelete={ itemsPendingDelete }
-					onToggleSelect={ handleToggleSelect }
+					onToggleSelect={ handleDeleteSelect }
 					onSort={ handleSort }      // tells the table how to sort when header clicked
 					sortConfig={ sortConfig }  // tells the table which arrow to display
 				/>
@@ -230,12 +277,14 @@ const App = () => {
 					setSelectedItem = { setSelectedItem } 
 					fieldDefs = { fieldDefs }
 					onDelete={ handleDelete }
+					onSave={ handleSave }
 				/>
 
 				<AddItem
 					inventory = { inventory }
 					setInventory = { setInventory }
 					fieldDefs = { fieldDefs }
+					onAdd = { handleAdd }
 				/>
 
 				<DeleteModal

@@ -2,41 +2,24 @@
 import React, { useState } from 'react';
 import DynamicForm from './DynamicForm';
 
-const AddItem = ({ inventory, setInventory, fieldDefs}) => { // working, no validations yet though
+const AddItem = ({ inventory, setInventory, fieldDefs, onAdd}) => { // working, no validations yet though
     //type, description, brand, proprty no., acquisition date, cost, memorandum, district, location
     const [formData, setFormData] = useState({});
     const [message, setMessage] = useState("");
 
-	const handleSubmit = async ( e ) => {
+	// after submit behaviour
+	const handleSubmitClick = async ( e ) => {
 		e.preventDefault();
 
 		try {
-			// convert all string fields in formData to uppercase
-			const upperCaseData = Object.fromEntries(
-				Object.entries(formData).map(([key, value]) => [
-					key,
-					typeof value === "string" ? value.toUpperCase() : value
-				])
-			);
-
-			const itemId =  await globalThis.electron.generateNextItemId(formData.Type);
-			const newItem = {
-				...upperCaseData,
-				Index_ID: itemId
-			};
-
-			await globalThis.electron.addItem( newItem );
-
-			// refresh inventory list
-			const updatedInventory = await globalThis.electron.getAllItems();
-			setInventory( updatedInventory );
+			await onAdd(formData); 
 
 			setMessage( "Item Added Successfully!" );
 			setFormData({});
 			setTimeout( () => setMessage(""), 2500 );
 
 		} catch ( err ) {
-			console.error( "Failed to add item:", err );
+			console.error(err);
 		}
 	};
 
@@ -51,7 +34,7 @@ const AddItem = ({ inventory, setInventory, fieldDefs}) => { // working, no vali
 					</div>
 
 					<div className="modal-body">
-						<form onSubmit={handleSubmit}>
+						<form onSubmit={handleSubmitClick}>
 						<DynamicForm formData={formData} setFormData={setFormData} fieldDefs={fieldDefs} />
 
 						{message && <p className="text-success text-center mt-2">{message}</p>}

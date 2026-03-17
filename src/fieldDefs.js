@@ -3,9 +3,10 @@
     { label: "Type", 
       key: "Type", 
       options: ["ICT EQUIPMENT", "OFFICE EQUIPMENT"],  // dropdown options
-      searchable: true
+      searchable: true,
+      required: true 
     },
-    { label: "Description", key: "Property_Description", searchable: true },
+    { label: "Description", key: "Property_Description", searchable: true, required: true },
     { label: "Brand", key: "Brand", searchable: true },
     { label: "Property Number", key: "Property_Number", searchable: true },
     { label: "Acquisition Date", key: "Acquisition_Date", type: "date" },
@@ -22,7 +23,8 @@
         "EAST DISTRICT HEALTH CENTER",
         "WEST DISTRICT HEALTH CENTER"
       ],
-      searchable: true
+      searchable: true, 
+      required: true 
     },
     { label: "Location", key: "Equipment_Location" },
   ];

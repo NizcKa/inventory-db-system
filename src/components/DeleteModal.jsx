@@ -14,7 +14,7 @@ const DeleteModal = ({ show, onClose, onConfirm }) => {
                     </div>
 
                     <div className="modal-body">
-                        <p>Are you sure you want to delete items?</p>
+                        <p>Are you sure you want to delete?</p>
                     </div>
 
                     <div className="modal-footer">
