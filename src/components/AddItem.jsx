@@ -12,7 +12,7 @@ const AddItem = ({ inventory, setInventory, fieldDefs, onAdd}) => { // working, 
 		e.preventDefault();
 
 		try {
-			await onAdd(formData); 
+			await onAdd(formData, setFormData); 
 
 			setMessage( "Item Added Successfully!" );
 			setFormData({});

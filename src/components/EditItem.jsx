@@ -21,7 +21,7 @@ const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete, onSave }) => {
 	// after save behaviour
 	const handleSaveClick = async () => {
 		try {
-			await onSave(formData); 
+			await onSave(formData, setFormData); 
 
 			setOriginalData({ ...formData });
 			setMessage("Item Saved Successfully!");
@@ -33,9 +33,18 @@ const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete, onSave }) => {
 	};
 
 	//check if form data changed (duh)
-	const isFormChanged = Object.keys(formData).some(
-		key => formData[key] !== originalData[key]
-	); 
+	const isFormChanged = Object.keys(formData).some(key => {
+		const formVal = formData[key];
+		const origVal = originalData[key];
+
+		// compare strings case-insensitively
+		if (typeof formVal === "string" && typeof origVal === "string") {
+			return formVal.toUpperCase() !== origVal.toUpperCase();
+		}
+
+		// compare non-strings normally
+		return formVal !== origVal;
+	});
 
 	if ( !modalItem ) return null;
 

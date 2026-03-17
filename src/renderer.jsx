@@ -13,6 +13,8 @@ import AddItem from './components/AddItem';
 import SearchBars from "./components/SearchBars";
 import DeleteModal from './components/DeleteModal';
 
+import useInventory from "./hooks/useInventory";
+
 
 const App = () => {
 	const [inventory, setInventory] = useState([]); // holds the inventory table
@@ -27,6 +29,8 @@ const App = () => {
 	});
 	const [showDeleteModal, setShowDeleteModal] = useState(false); // toggle for the delete modal
 	const [deleteTargetIds, setDeleteTargetIds] = useState([]); // 
+
+	const { addItem, updateItem, deleteItems, loadItems } = useInventory(setInventory);
 
 	// loads the database table into items 
 	useEffect(() => { 
@@ -44,51 +48,35 @@ const App = () => {
 		modal.show();  
 	}
 
-	// saves edit changes to the database
-	const handleSave = async (formData) => {
-		try { 
-			const upperCaseData = Object.fromEntries(
-				Object.entries(formData).map(([key, value]) => [
-					key,
-					typeof value === "string" ? value.toUpperCase() : value
-				])
-			);
+	const handleAdd = (formData, setFormData) => addItem(formData, setFormData);
 
-			await globalThis.electron.updateItem(upperCaseData);
+	const handleSave = (formData, setOriginalData) => updateItem(formData, setOriginalData);
 
-			const updatedInventory = await globalThis.electron.getAllItems();
-			setInventory(updatedInventory);
+	const handleDelete = async (item, confirmed = false) => {
+		let ids = itemsPendingDelete;
 
-		} catch (err) {
-			console.error("Failed to update item:", err);
+		if (item !== undefined) { 	//ensures ids are always an array
+			ids = Array.isArray(item) ? item : [item];
+		}	
+
+		if (!confirmed) { // confirmation check
+			// hide edit modal if it's open
+			const editModalEl = document.getElementById("editItemModal");
+			const editModal = bootstrap.Modal.getInstance(editModalEl);
+			if (editModal) editModal.hide();
+
+			// store targets and show delete confirmation modal
+			setDeleteTargetIds(ids);
+			setShowDeleteModal(true);
+			return; 
 		}
-	};
 
-	// add new item to database
-	const handleAdd = async (formData) => {
-		try {
-			const upperCaseData = Object.fromEntries(
-				Object.entries(formData).map(([key, value]) => [
-					key,
-					typeof value === "string" ? value.toUpperCase() : value
-				])
-			);
+		await deleteItems(ids);
 
-			const itemId =  await globalThis.electron.generateNextItemId(formData.Type);
-			const newItem = {
-				...upperCaseData,
-				Index_ID: itemId
-			};
-
-			await globalThis.electron.addItem(newItem);
-
-			// refresh inventory list
-			const updatedInventory = await globalThis.electron.getAllItems();
-			setInventory(updatedInventory);
-
-		} catch (err) {
-			console.error("Failed to add item:", err);
-		}
+		// reset state
+		setItemsPendingDelete([]);
+		setDeleteMode(false);
+		setSelectedItem(null);
 	};
 
 	// Toggle delete mode
@@ -104,47 +92,6 @@ const App = () => {
 				? prev.filter(i => i !== id) // remove if already selected
 				: [...prev, id]             // add if not selected
 		);
-	};
-
-	// deletes all items pending deletion (both single and bulk)
-	const handleDelete = async (item , confirmed = false) => {
-		let ids = itemsPendingDelete;
-
-		//ensures ids are always an array
-		if (item !== undefined) {
-			ids = Array.isArray(item) ? item : [item];
-		}	
-
-		if (!confirmed) {
-			// hide edit modal if it's open
-			const editModalEl = document.getElementById("editItemModal");
-			const editModal = bootstrap.Modal.getInstance(editModalEl);
-			if (editModal) editModal.hide();
-
-			// store targets and show delete confirmation modal
-			setDeleteTargetIds(ids);
-			setShowDeleteModal(true);
-			return; 
-		}
-
-		console.log("handleDelete called with ids:", ids); 
-
-		try {
-			for (const id of ids) {
-				await globalThis.electron.deleteItem(id);
-			}
-
-			const updatedInventory = await globalThis.electron.getAllItems();
-			setInventory(updatedInventory);
-
-			setItemsPendingDelete([]);
-			setDeleteMode(false);
-			setSelectedItem(null);
-			console.log("item deleted");
-
-		} catch (err) {
-			console.error("Failed to delete items:", err);
-		}
 	};
 
 	// handles sorting control
