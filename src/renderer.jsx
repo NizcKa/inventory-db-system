@@ -11,6 +11,7 @@ import Table from './components/Table';
 import EditItem from './components/EditItem';
 import AddItem from './components/AddItem';
 import SearchBars from "./components/SearchBars";
+import DeleteModal from './components/DeleteModal';
 
 
 const App = () => {
@@ -24,6 +25,8 @@ const App = () => {
   		key: null,       
   		direction: 'asc'  
 	});
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [deleteTargetIds, setDeleteTargetIds] = useState([]);
 
 	// loads the database table into items 
 	useEffect(() => { 
@@ -49,15 +52,35 @@ const App = () => {
 
 	// toggle a row's selection for deletion
 	const handleToggleSelect = (id) => {
-		setItemsPendingDelete((prev) =>
-			prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+		setItemsPendingDelete(prev =>
+			prev.includes(id)
+				? prev.filter(i => i !== id) // remove if already selected
+				: [...prev, id]             // add if not selected
 		);
 	};
 
 	// deletes all items pending deletion (both single and bulk)
-	const handleDelete = async (item) => {
-  		const ids = Array.isArray(item) ? item : (itemsPendingDelete || []); //ensures ids are always an array
-		console.log("handleDelete called with ids:", item); 
+	const handleDelete = async (item , confirmed = false) => {
+		let ids = itemsPendingDelete;
+
+		//ensures ids are always an array
+		if (item !== undefined) {
+			ids = Array.isArray(item) ? item : [item];
+		}	
+
+		if (!confirmed) {
+			// hide edit modal if it's open
+			const editModalEl = document.getElementById("editItemModal");
+			const editModal = bootstrap.Modal.getInstance(editModalEl);
+			if (editModal) editModal.hide();
+
+			// store targets and show delete confirmation modal
+			setDeleteTargetIds(ids);
+			setShowDeleteModal(true);
+			return; 
+		}
+
+		console.log("handleDelete called with ids:", ids); 
 
 		try {
 			for (const id of ids) {
@@ -75,16 +98,6 @@ const App = () => {
 		} catch (err) {
 			console.error("Failed to delete items:", err);
 		}
-	};
-
-	// gives the delete popup from the edit form 
-	const handleFormDelete = (id) => {
-		const itemModal = bootstrap.Modal.getInstance(
-			document.getElementById("editItemModal")
-		);
-		if (itemModal) itemModal.hide();
-		
-		handleDelete([id]); //passes the single id as an array to delete
 	};
 
 	// handles sorting control
@@ -190,7 +203,7 @@ const App = () => {
 					{deleteMode && itemsPendingDelete.length > 0 && (
 					<button
 						className="btn btn-danger"
-						onClick={handleDelete}
+						onClick={() => handleDelete()}
 					>
 						Confirm Delete ({itemsPendingDelete.length})
 					</button>
@@ -216,7 +229,7 @@ const App = () => {
 					setInventory = { setInventory }
 					setSelectedItem = { setSelectedItem } 
 					fieldDefs = { fieldDefs }
-					onDelete={ handleFormDelete }
+					onDelete={ handleDelete }
 					
 				/>
 
@@ -225,6 +238,16 @@ const App = () => {
 					setInventory = { setInventory }
 					fieldDefs = { fieldDefs }
 				/>
+
+				<DeleteModal
+					show={showDeleteModal}
+					onClose={() => setShowDeleteModal(false)}
+					onConfirm={() => {
+						handleDelete(deleteTargetIds, true);
+						setShowDeleteModal(false);
+					}}
+				/>
+
 			</div>
 		</div>
 	);

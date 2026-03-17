@@ -6,7 +6,6 @@ const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete }) => { // most
 	const [formData, setFormData] = useState({});
 	const [message, setMessage] = useState("");
 	const [originalData, setOriginalData] = useState({});
-	const [confirmDelete, setConfirmDelete] = useState(false);
 
 	useEffect(() => {
 		if ( modalItem ) {
@@ -17,7 +16,6 @@ const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete }) => { // most
 			setOriginalData({});
 		}
 		setMessage(""); 
-		setConfirmDelete(false);
 	}, [modalItem]);
 
 	const handleSave = async () => {
@@ -42,7 +40,7 @@ const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete }) => { // most
 	if ( !modalItem ) return null;
 
 	return (
-		<div className="modal fade" id="editItemModal" tabIndex="-1">
+		<div className="modal fade" id="editItemModal" tabIndex="-1" data-bs-backdrop="static">
 			<div className="modal-dialog modal-lg">
 				<div className="modal-content">
 
@@ -62,34 +60,12 @@ const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete }) => { // most
 					{message && (<p className="text-success text-center mb-2">{message}</p>)}
 
 					<div className="modal-footer">
-						{confirmDelete ? (
-							<>
-								<span className="text-danger me-2">
-									Confirm delete?
-								</span>
-
-								<button
-									className="btn btn-danger"
-									onClick={() => onDelete(modalItem.Index_ID)}
-								>
-									Yes Delete
-								</button>
-
-								<button
-									className="btn btn-secondary"
-									onClick={() => setConfirmDelete(false)}
-								>
-									Cancel
-								</button>
-							</>
-						) : (
-							<button
-								className="btn btn-outline-danger"
-								onClick={() => onDelete(modalItem.Index_ID)}
-							>
-								Delete Record
-							</button>
-						)}
+						<button
+							className="btn btn-outline-danger"
+							onClick={() => onDelete(modalItem.Index_ID)}
+						>
+							Delete Record
+						</button>
 
 						<button className="btn btn-secondary" data-bs-dismiss="modal">
 							Cancel
