@@ -5,7 +5,7 @@ export default defineConfig({
     build: {
         rollupOptions: {
             external: [
-                'sqlite3',      // don't bundle sqlite3
+                'better-sqlite3',      // don't bundle sqlite3
                 'electron'      // also keep electron as external
             ]
         }

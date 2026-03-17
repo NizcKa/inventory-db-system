@@ -6,7 +6,7 @@ import * as bootstrap from "bootstrap";
 import "./index.css";
 
 // item components
-import { fieldDefs } from './FieldDefs';
+import { fieldDefs } from './fieldDefs';
 import Table from './components/Table';
 import EditItem from './components/EditItem';
 import AddItem from './components/AddItem';
@@ -25,8 +25,8 @@ const App = () => {
   		key: null,       
   		direction: 'asc'  
 	});
-	const [showDeleteModal, setShowDeleteModal] = useState(false);
-	const [deleteTargetIds, setDeleteTargetIds] = useState([]);
+	const [showDeleteModal, setShowDeleteModal] = useState(false); // toggle for the delete modal
+	const [deleteTargetIds, setDeleteTargetIds] = useState([]); // 
 
 	// loads the database table into items 
 	useEffect(() => { 
@@ -230,7 +230,6 @@ const App = () => {
 					setSelectedItem = { setSelectedItem } 
 					fieldDefs = { fieldDefs }
 					onDelete={ handleDelete }
-					
 				/>
 
 				<AddItem

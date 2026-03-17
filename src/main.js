@@ -61,155 +61,103 @@ app.on('window-all-closed', () => {
   }
 });
 
+// IPC handlers ----
+
 // for getting all items (duh) from the database table
 ipcMain.handle('get-all-items', async () => {
   const db = getDb();
-
-  return new Promise((resolve, reject) => {
-    db.all('SELECT * FROM Catalogue', (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows); // send all rows to renderer
-    });
-  });
+  try {
+    return db.prepare('SELECT * FROM Catalogue').all();
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 });
 
-// for updating edited items
-ipcMain.handle('update-item', async (event, item) => {
+// Add item
+ipcMain.handle('add-item', (event, item) => {
   const db = getDb();
-  console.log(db);
+  const query = `
+    INSERT INTO Catalogue (
+      Index_ID, Type, Property_Description, Brand, Property_Number,
+      Acquisition_Date, Acquisition_Cost, Memorandum_Receipt, District, Equipment_Location
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+  const params = [
+    item.Index_ID, item.Type, item.Property_Description, item.Brand,
+    item.Property_Number, item.Acquisition_Date, item.Acquisition_Cost,
+    item.Memorandum_Receipt, item.District, item.Equipment_Location
+  ];
 
-  return new Promise((resolve, reject) => {
-    const query = `
-      UPDATE Catalogue
-      SET 
-        Property_Description = ?,
-        Brand = ?,
-        Property_Number = ?,
-        Type = ?,
-        Acquisition_Date = ?,
-        Acquisition_Cost = ?,
-        Memorandum_Receipt = ?,
-        District = ?,
-        Equipment_Location = ?
-      WHERE Index_ID = ?
-    `;
-
-    const params = [
-      item.Property_Description,
-      item.Brand,
-      item.Property_Number,
-      item.Type,
-      item.Acquisition_Date,
-      item.Acquisition_Cost,
-      item.Memorandum_Receipt,
-      item.District,
-      item.Equipment_Location,
-      item.Index_ID   // WHERE clause
-    ];
-
-    db.run(query, params, function(err) {
-      if (err) {
-        reject(err)
-      } else { 
-        resolve({ success: true });
-      }
-    });
-  });
+  try {
+    db.prepare(query).run(params);
+    return { success: true };
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 });
 
-// adds items to the table
-ipcMain.handle('add-item', async (event, item) => {
+// Update item
+ipcMain.handle('update-item', (event, item) => {
   const db = getDb();
+  const query = `
+    UPDATE Catalogue
+    SET Property_Description = ?, Brand = ?, Property_Number = ?, Type = ?,
+        Acquisition_Date = ?, Acquisition_Cost = ?, Memorandum_Receipt = ?,
+        District = ?, Equipment_Location = ?
+    WHERE Index_ID = ?
+  `;
+  const params = [
+    item.Property_Description, item.Brand, item.Property_Number, item.Type,
+    item.Acquisition_Date, item.Acquisition_Cost, item.Memorandum_Receipt,
+    item.District, item.Equipment_Location, item.Index_ID
+  ];
 
-  return new Promise((resolve, reject) => {
-    const query = `
-      INSERT INTO Catalogue (
-        Index_ID,
-        Type,
-        Property_Description,
-        Brand,
-        Property_Number,
-        Acquisition_Date,
-        Acquisition_Cost,
-        Memorandum_Receipt,
-        District,
-        Equipment_Location
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    const params = [
-      item.Index_ID,
-      item.Type,
-      item.Property_Description,
-      item.Brand,
-      item.Property_Number,
-      item.Acquisition_Date,
-      item.Acquisition_Cost,
-      item.Memorandum_Receipt,
-      item.District,
-      item.Equipment_Location
-    ];
-
-    db.run(query, params, function (err) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve({ success: true });
-      }
-    });
-  });
+  try {
+    db.prepare(query).run(params);
+    return { success: true };
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 });
 
-const typePrefixes = { // type prefix for index id
-	"ICT EQUIPMENT": "ICT",
-	"OFFICE EQUIPMENT": "OFF",
-};
-
-// read index id number and increment straight from the database
-ipcMain.handle('generate-next-item-id', async (event, type) => {
+// Delete item(s) (supports single or bulk)
+ipcMain.handle('delete-item', (event, indexIDs) => {
   const db = getDb();
+  if (!Array.isArray(indexIDs)) indexIDs = [indexIDs];
 
-  const prefix = typePrefixes[type] || type.slice(0, 3).toUpperCase(); // 3 letter prefix for index id
-
-  return new Promise((resolve, reject) => { // gets most recent index id
-    const query = `
-      SELECT Index_ID FROM Catalogue
-      WHERE Type = ?
-      ORDER BY Index_ID DESC
-      LIMIT 1
-    `;
-    db.get(query, [type], (err, row) => {
-      if (err) return reject(err);
-
-      let nextNumber = 1;
-      if (row && row.Index_ID) {
-        const parts = row.Index_ID.match(/\d+$/); // extracts the numeric end of the index id
-        if (parts) nextNumber = Number.parseInt(parts[0], 10) + 1;
-      }
-
-      resolve(`${prefix}${String(nextNumber).padStart(3, "0")}`);
-    });
-  });
+  try {
+    const stmt = db.prepare('DELETE FROM Catalogue WHERE Index_ID = ?');
+    for (const id of indexIDs) {
+      stmt.run(id);
+    }
+    return { success: true };
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 });
 
-// deletes item based on index ID
-ipcMain.handle('delete-item', async (event, indexID) => {
+// Generate next Index_ID
+const typePrefixes = { "ICT EQUIPMENT": "ICT", "OFFICE EQUIPMENT": "OFF" };
+ipcMain.handle('generate-next-item-id', (event, type) => {
   const db = getDb();
+  const prefix = typePrefixes[type] || type.slice(0, 3).toUpperCase();
 
-  return new Promise((resolve, reject) => {
-    const query = `
-      DELETE FROM Catalogue 
-      WHERE Index_ID = ?
-    `;
+  const row = db.prepare(`
+    SELECT Index_ID FROM Catalogue
+    WHERE Type = ?
+    ORDER BY Index_ID DESC
+    LIMIT 1
+  `).get(type);
 
-    db.run(query, [indexID], function (err) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve({ success: true });
-      }
-    });
-  });
+  let nextNumber = 1;
+  if (row?.Index_ID) {
+    const parts = row.Index_ID.match(/\d+$/);
+    if (parts) nextNumber = Number.parseInt(parts[0], 10) + 1;
+  }
+
+  return `${prefix}${String(nextNumber).padStart(3, "0")}`;
 });
-

@@ -1,17 +1,19 @@
 // Loads the database into the app
-import sqlite3 from 'sqlite3';
+import Database from 'better-sqlite3';
+import fs from 'fs';
 import { app } from 'electron';
 import path from 'path';
 
 import { saveDbPath, loadDbPath } from './config.js';  
 import { selectDatabaseFile } from './select-db.js';  
 
-let db = null; // initialized to hold the database
+let db = null;
 
 export async function initDatabase() {
     let dbPath = loadDbPath();
 
-    if (!dbPath) { // prompt to select db file path if there's none yet
+    // If no path is saved, or the file no longer exists, prompt user
+    if (!dbPath || !fs.existsSync(dbPath)) {
         dbPath = await selectDatabaseFile();
 
         if (!dbPath) {
@@ -21,20 +23,18 @@ export async function initDatabase() {
         saveDbPath(dbPath);
     }
 
-    db = new sqlite3.Database(dbPath, (err) => { // loads the database saved filepath to db
-        if (err) {
-            console.error("Failed to open database:", err);
-        } else {
-            console.log("Connected to SQLite DB:", dbPath);
-        }
-    });
+    try {
+        db = new Database(dbPath); // synchronous open
+        console.log("Connected to SQLite DB:", dbPath);
+    } catch (err) {
+        console.error("Failed to open database:", err);
+        throw err;
+    }
 
     return db;
 }
 
-export function getDb() { //helper to get db
-    if (!db) {
-        throw new Error("Database not initialized");
-    }
+export function getDb() {
+    if (!db) throw new Error("Database not initialized");
     return db;
 }

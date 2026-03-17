@@ -2,7 +2,7 @@
 import React, { useMemo, useEffect, useState} from "react";
 import debounce from "lodash/debounce";
 
-const SearchBars = ({ fieldDefs, searchFilters, onSearchChange }) => {
+const SearchBars = ({ fieldDefs, onSearchChange }) => {
     const [localInputs, setLocalInputs] = useState({}); // input local state
 
     // debounce function

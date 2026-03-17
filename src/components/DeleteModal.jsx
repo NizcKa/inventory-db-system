@@ -1,3 +1,4 @@
+// modal popup ofr confirming deletion
 import React from 'react';
 
 const DeleteModal = ({ show, onClose, onConfirm }) => {

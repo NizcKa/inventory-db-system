@@ -1,4 +1,4 @@
-// modal popup for editing selected item
+// modal popup for editing selected item and saving changes
 import React, { useState, useEffect } from 'react';
 import DynamicForm from './DynamicForm';
 
@@ -18,6 +18,7 @@ const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete }) => { // most
 		setMessage(""); 
 	}, [modalItem]);
 
+	// saves edit changes to the database
 	const handleSave = async () => {
 		try {
 			await globalThis.electron.updateItem( formData );
@@ -40,7 +41,7 @@ const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete }) => { // most
 	if ( !modalItem ) return null;
 
 	return (
-		<div className="modal fade" id="editItemModal" tabIndex="-1" data-bs-backdrop="static">
+		<div className="modal fade" id="editItemModal" tabIndex="-1">
 			<div className="modal-dialog modal-lg">
 				<div className="modal-content">
 

@@ -3,7 +3,22 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 
 module.exports = {
   packagerConfig: {
-    asar: true,
+    "asar": {
+      "unpack": "*.{node,dll}"
+    },
+    ignore: [
+      String.raw`^/node_modules/(?!(better-sqlite3|bindings|file-uri-to-path)/)`,
+      String.raw`^/src($|/)`,
+      String.raw`^/public($|/)`,
+      String.raw`^/test($|/)`,
+      String.raw`^/\.git($|/)`,
+      String.raw`^/\.vscode($|/)`,
+      String.raw`^/\.github($|/)`,
+      String.raw`^/\.idea($|/)`,
+      String.raw`^/README\.md$`,
+      String.raw`^/package-lock\.json$`,
+      String.raw`^/\.env$`
+    ]
   },
   rebuildConfig: {},
   makers: [
