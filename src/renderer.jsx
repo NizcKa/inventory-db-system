@@ -118,6 +118,10 @@ const App = () => {
 		}));
 	};
 
+	const handleExportAsCsv = () => {
+		
+	};
+
 	// filtered items based on search
 	const filteredInventory = inventory.filter(item => {
 		return Object.entries(searchFilters).every(([column, value]) => {

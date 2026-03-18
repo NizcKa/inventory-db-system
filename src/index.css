@@ -1,11 +1,11 @@
-/* header bar styling*/
-.header-bar {
-    
+html {
+    overflow-y: scroll;
 }
 
 /* table styling */
 
 .table {
+    table-layout: fixed;
     width: 100%;              
     box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
     border-radius: 0.3rem;     
@@ -20,11 +20,15 @@
 .table td {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
+
+    
+    white-space: normal;     
+    word-break: break-word;
 }
 
 .table th:nth-child(3),
 .table td:nth-child(3) {
-  text-align: left;
+    text-align: left;
 }
 
 .table tbody tr:not(.table-primary):hover > *  {
@@ -38,4 +42,9 @@
 .table td input[type="checkbox"] {
     transform: scale(1.5);
     margin: auto;  
+}
+
+/* modal styling */
+.modal {
+    background-color: rgba(0,0,0,0.5);
 }

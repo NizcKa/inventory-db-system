@@ -19,11 +19,26 @@ const Table = ({
 		return sortConfig.direction === 'asc' ? '▲' : '▼';
 	};
 
-	// mm-dd-yyyy formatting
-	const formatDate = (dateStr) => { 
-		if (!dateStr) return "N/A"; 
-		const [year, month, day] = dateStr.split('-');
-		return `${month}-${day}-${year}`;
+	const formatDate = (dateStr) => {
+	if (!dateStr) return "N/A";
+
+	const parts = dateStr.split('-');
+
+	if (parts.length === 1) {
+		return parts[0];
+	}
+
+	if (parts.length === 2) {
+		return `${parts[1]}-${parts[0]}`; // MM-YYYY
+	}
+
+	if (parts.length === 3) {
+		const [year, month, day] = parts;
+		return `${month}-${day}-${year}`; // MM-DD-YYYY
+	}
+
+	// fallback
+	return dateStr;
 	};
 
   	if (!items.length) return <p>No items found.</p>;
