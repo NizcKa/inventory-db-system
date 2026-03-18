@@ -37,6 +37,8 @@
     "bootstrap": "^5.3.8",
     "electron-squirrel-startup": "^1.0.1",
     "lodash": "^4.17.23",
+    "prop-types": "^15.8.1",
+    "react-csv": "^2.2.2",
     "react-dom": "^19.2.4",
     "react-router": "^7.13.1",
     "sqlite": "^5.1.1"
@@ -48,10 +50,18 @@
       }
     },
     "makers": [
-      { "name": "@electron-forge/maker-squirrel" },
-      { "name": "@electron-forge/maker-zip" },
-      { "name": "@electron-forge/maker-deb" },
-      { "name": "@electron-forge/maker-rpm" }
+      {
+        "name": "@electron-forge/maker-squirrel"
+      },
+      {
+        "name": "@electron-forge/maker-zip"
+      },
+      {
+        "name": "@electron-forge/maker-deb"
+      },
+      {
+        "name": "@electron-forge/maker-rpm"
+      }
     ],
     "plugins": [
       {

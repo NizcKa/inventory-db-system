@@ -15,6 +15,7 @@ import DeleteModal from './components/DeleteModal';
 
 import useInventory from "./hooks/useInventory";
 
+import { CSVLink } from "react-csv";
 
 const App = () => {
 	const [inventory, setInventory] = useState([]); // holds the inventory table
@@ -30,7 +31,7 @@ const App = () => {
 	const [showDeleteModal, setShowDeleteModal] = useState(false); // toggle for the delete modal
 	const [deleteTargetIds, setDeleteTargetIds] = useState([]); // 
 
-	const { addItem, updateItem, deleteItems, loadItems } = useInventory(setInventory);
+	const { addItem, updateItem, deleteItems } = useInventory(setInventory);
 
 	// loads the database table into items 
 	useEffect(() => { 
@@ -118,10 +119,6 @@ const App = () => {
 		}));
 	};
 
-	const handleExportAsCsv = () => {
-		
-	};
-
 	// filtered items based on search
 	const filteredInventory = inventory.filter(item => {
 		return Object.entries(searchFilters).every(([column, value]) => {
@@ -168,6 +165,37 @@ const App = () => {
 			: bVal.toString().localeCompare(aVal.toString());
 	});
 
+	// csv headers from field defs
+	const csvHeaders = fieldDefs.map(field => ({
+		label: field.label,
+		key: field.key
+	}));
+
+	// formatting csv data from filteredInventory
+	const csvData = filteredInventory.map(item =>
+		fieldDefs.reduce((acc, field) => {
+			let value = item[field.key];
+
+			if (field.key === "Acquisition_Date" && value) {
+				const parts = value.split("-");
+				if (parts.length === 3) value = `${parts[1]}-${parts[2]}-${parts[0]}`;  
+				else if (parts.length === 2) value = `${parts[1]}-${parts[0]}`;           
+				else value = parts[0];                                                     
+			}
+
+			if (field.key === "Acquisition_Cost" && value != null || value == 0) {
+				value = new Intl.NumberFormat("en-PH", {
+					style: "currency",
+					currency: "PHP",
+					minimumFractionDigits: 2
+				}).format(value);
+			}
+
+			acc[field.key] = value ?? "N/A";
+			return acc;
+		}, {})
+	);
+
 	return (
 		<div className="app container d-flex flex-column align-items-center p-3 pt-3">
 			<div
@@ -206,6 +234,16 @@ const App = () => {
 						Confirm Delete ({itemsPendingDelete.length})
 					</button>
 					)}
+
+					<CSVLink
+						headers={csvHeaders}
+						data={csvData}
+						filename="inventory.csv"
+						className="btn btn-primary"
+					>
+						Export Current Table as CSV
+					</CSVLink>
+					
 				</div>
 			</div>
 			

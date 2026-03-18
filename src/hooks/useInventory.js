@@ -4,6 +4,19 @@ import { useState } from "react";
 const useInventory = (setInventory) => {
     const [message, setMessage] = useState("");
 
+    // converts empty string entries to null
+    const normalizeFormData = (data) => {
+        return Object.fromEntries(
+            Object.entries(data).map(([key, value]) => {
+                if (typeof value === "string") {
+                    const trimmed = value.trim();
+                    return [key, trimmed === "" ? null : trimmed.toUpperCase()];
+                }
+                return [key, value];
+            })
+        );
+    };
+
     // refresh inventory
     const loadItems = async () => {
         try {
@@ -17,10 +30,12 @@ const useInventory = (setInventory) => {
     // add items to inventory
     const addItem = async (formData, setFormData) => {
         try {
+            const normalizedData = normalizeFormData(formData);
+
             const upperCaseData = Object.fromEntries(
-                Object.entries(formData).map(([key, value]) => [
-                key,
-                typeof value === "string" ? value.toUpperCase() : value,
+                Object.entries(normalizedData).map(([key, value]) => [
+                    key,
+                    typeof value === "string" ? value.toUpperCase() : value,
                 ])
             );
 
@@ -48,8 +63,10 @@ const useInventory = (setInventory) => {
     // update item details of specified id in inventory
     const updateItem = async (formData, setOriginalData) => {
         try {
+            const normalizedData = normalizeFormData(formData);
+            
             const upperCaseData = Object.fromEntries(
-                Object.entries(formData).map(([key, value]) => [
+                Object.entries(normalizedData).map(([key, value]) => [
                     key,
                     typeof value === "string" ? value.toUpperCase() : value,
                 ])
