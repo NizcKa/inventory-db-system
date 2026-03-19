@@ -18,6 +18,14 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
         return () => window.removeEventListener('focus', handleFocus);
     }, [setFormData]);
 
+    const handleDateChange = (e, key, isPartial) => {
+        if (isPartial) {
+            handlePartialDateInput(e, key);
+        } else {
+            handleChange(e);
+        }
+    };
+
      // handles partial date input
     const handlePartialDateInput = (e, key) => {
         let value = e.target.value;
@@ -78,7 +86,7 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
                         className="form-control"
                         name={key}
                         value={formData[key] || ""}
-                        onChange={(e) => handlePartialDateInput(e, key)}
+                        onChange={(e) => handleDateChange(e, key, isPartial)}
                         placeholder={isPartial ? "YYYY or YYYY-MM" : undefined}
                         required={required}
                     />

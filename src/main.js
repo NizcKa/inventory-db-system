@@ -15,6 +15,8 @@ const createWindow = () => {
     width: 800,
     height: 600,
     webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
     },
   });
@@ -74,19 +76,34 @@ ipcMain.handle('get-all-items', async () => {
   }
 });
 
-// Add item
+// add item
 ipcMain.handle('add-item', (event, item) => {
   const db = getDb();
   const query = `
     INSERT INTO Catalogue (
-      Index_ID, Type, Property_Description, Brand, Property_Number,
-      Acquisition_Date, Acquisition_Cost, Memorandum_Receipt, District, Equipment_Location
+      Index_ID, 
+      Type, 
+      Property_Description, 
+      Brand, 
+      Property_Number,
+      Acquisition_Date, 
+      Acquisition_Cost, 
+      Memorandum_Receipt, 
+      District, 
+      Equipment_Location
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
   const params = [
-    item.Index_ID, item.Type, item.Property_Description, item.Brand,
-    item.Property_Number, item.Acquisition_Date, item.Acquisition_Cost,
-    item.Memorandum_Receipt, item.District, item.Equipment_Location
+    item.Index_ID, 
+    item.Type, 
+    item.Property_Description, 
+    item.Brand,
+    item.Property_Number, 
+    item.Acquisition_Date, 
+    item.Acquisition_Cost,
+    item.Memorandum_Receipt, 
+    item.District, 
+    item.Equipment_Location
   ];
 
   try {
@@ -98,20 +115,34 @@ ipcMain.handle('add-item', (event, item) => {
   }
 });
 
-// Update item
+// update item based on id
 ipcMain.handle('update-item', (event, item) => {
   const db = getDb();
   const query = `
     UPDATE Catalogue
-    SET Property_Description = ?, Brand = ?, Property_Number = ?, Type = ?,
-        Acquisition_Date = ?, Acquisition_Cost = ?, Memorandum_Receipt = ?,
-        District = ?, Equipment_Location = ?
+    SET 
+      Property_Description = ?, 
+      Brand = ?, 
+      Property_Number = ?, 
+      Type = ?,
+      Acquisition_Date = ?, 
+      Acquisition_Cost = ?, 
+      Memorandum_Receipt = ?,
+      District = ?, 
+      Equipment_Location = ?
     WHERE Index_ID = ?
   `;
   const params = [
-    item.Property_Description, item.Brand, item.Property_Number, item.Type,
-    item.Acquisition_Date, item.Acquisition_Cost, item.Memorandum_Receipt,
-    item.District, item.Equipment_Location, item.Index_ID
+    item.Property_Description, 
+    item.Brand, 
+    item.Property_Number, 
+    item.Type,
+    item.Acquisition_Date, 
+    item.Acquisition_Cost, 
+    item.Memorandum_Receipt,
+    item.District, 
+    item.Equipment_Location, 
+    item.Index_ID
   ];
 
   try {
@@ -123,7 +154,7 @@ ipcMain.handle('update-item', (event, item) => {
   }
 });
 
-// Delete item(s) (supports single or bulk)
+// delete items based on ids in array
 ipcMain.handle('delete-item', (event, indexIDs) => {
   const db = getDb();
   if (!Array.isArray(indexIDs)) indexIDs = [indexIDs];
@@ -140,7 +171,7 @@ ipcMain.handle('delete-item', (event, indexIDs) => {
   }
 });
 
-// Generate next Index_ID
+// get highest index and generate next id
 const typePrefixes = { "ICT EQUIPMENT": "ICT", "OFFICE EQUIPMENT": "OFF" };
 ipcMain.handle('generate-next-item-id', (event, type) => {
   const db = getDb();

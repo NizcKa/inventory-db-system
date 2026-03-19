@@ -1,4 +1,4 @@
-// inventory function hook
+// inventory functions hook
 import { useState } from "react";
 
 const useInventory = (setInventory) => {
@@ -32,19 +32,12 @@ const useInventory = (setInventory) => {
         try {
             const normalizedData = normalizeFormData(formData);
 
-            const upperCaseData = Object.fromEntries(
-                Object.entries(normalizedData).map(([key, value]) => [
-                    key,
-                    typeof value === "string" ? value.toUpperCase() : value,
-                ])
-            );
-
             const itemId = await globalThis.electron.generateNextItemId(
                 formData.Type
             );
 
             const newItem = {
-                ...upperCaseData,
+                ...normalizedData,
                 Index_ID: itemId,
             };
 
@@ -64,15 +57,8 @@ const useInventory = (setInventory) => {
     const updateItem = async (formData, setOriginalData) => {
         try {
             const normalizedData = normalizeFormData(formData);
-            
-            const upperCaseData = Object.fromEntries(
-                Object.entries(normalizedData).map(([key, value]) => [
-                    key,
-                    typeof value === "string" ? value.toUpperCase() : value,
-                ])
-            );
 
-            await globalThis.electron.updateItem(upperCaseData);
+            await globalThis.electron.updateItem(normalizedData);
 
             await loadItems();
 
