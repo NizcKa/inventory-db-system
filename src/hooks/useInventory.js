@@ -62,7 +62,7 @@ const useInventory = (setInventory) => {
 
             await loadItems();
 
-            setOriginalData({ ...upperCaseData });
+            setOriginalData({ ...normalizedData });
             
             setMessage("Item Saved Successfully!");
             setTimeout(() => setMessage(""), 2500);

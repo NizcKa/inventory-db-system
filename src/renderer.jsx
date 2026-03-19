@@ -105,10 +105,10 @@ const App = () => {
 				setSortConfig({ key: null, direction: null }); // back to no sorting
 			} else {
 				setSortConfig({ key: columnKey, direction: 'asc' });
-			}
+			};
 		} else {
 			setSortConfig({ key: columnKey, direction: 'asc' });
-		}
+		};
 	};
 
 	// handles search state for each column in search filters
@@ -150,14 +150,14 @@ const App = () => {
 			return sortConfig.direction === 'asc'
 			? aVal - bVal
 			: bVal - aVal;
-		}
+		};
 
 		// for date columns (yyyy-mm-dd)
 		if (sortConfig.key === 'Acquisition_Date') {
 			return sortConfig.direction === 'asc'
 			? aVal.localeCompare(bVal)
 			: bVal.localeCompare(aVal);
-		}
+		};
 
 		// default string comparison for other text fields
 		return sortConfig.direction === 'asc'
@@ -198,10 +198,7 @@ const App = () => {
 
 	return (
 		<div className="app container d-flex flex-column align-items-center p-3 pt-3">
-			<div
-				className="top-bar sticky-top d-flex flex-column align-items-center w-100 p-2"
-				style={{ zIndex: 1000, backgroundColor: "white", boxShadow: "0 2px 5px rgba(0,0,0,0.1)" }}
-			>
+			<div className="top-bar sticky-top d-flex flex-column align-items-center w-100 p-2">
 				<div className="mb-2">
 					<SearchBars
 						fieldDefs={fieldDefs}

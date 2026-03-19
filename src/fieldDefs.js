@@ -6,15 +6,38 @@
       searchable: true,
       required: true 
     },
-    { label: "Description", key: "Property_Description", searchable: true, required: true },
-    { label: "Brand", key: "Brand", searchable: true },
-    { label: "Property Number", key: "Property_Number", searchable: true },
-    { label: "Acquisition Date", key: "Acquisition_Date", type: "date", partialDate: true },
+    
+    { label: "Description", 
+      key: "Property_Description", 
+      searchable: true,
+      required: true 
+    },
+
+    { label: "Brand", 
+      key: "Brand", 
+      searchable: true 
+    },
+
+    { label: "Property Number", 
+      key: "Property_Number", 
+      searchable: true 
+    },
+
+    { label: "Acquisition Date", 
+      key: "Acquisition_Date", 
+      type: "date", 
+      partialDate: true 
+    },
+
     { label: "Cost", 
       key: "Acquisition_Cost", 
       type: "number",
     },
-    { label: "Memorandum", key: "Memorandum_Receipt", },
+
+    { label: "Memorandum", 
+      key: "Memorandum_Receipt", 
+    },
+
     { label: "District", 
       key: "District",
       options: [
@@ -29,5 +52,8 @@
       searchable: true, 
       required: true 
     },
-    { label: "Location", key: "Equipment_Location" },
+
+    { label: "Location", 
+      key: "Equipment_Location" 
+    },
   ];

@@ -33,7 +33,7 @@ const SearchBars = ({ fieldDefs, onSearchChange }) => {
                     if (!searchable) return null;
 
                     return (
-                    <th key={key} style={{ verticalAlign: "top", minWidth: "120px" }}>
+                    <th key={key}>
                         <div>{label}</div>
 
                         {options ? (

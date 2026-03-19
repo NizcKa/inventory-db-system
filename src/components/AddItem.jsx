@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import DynamicForm from './DynamicForm';
 
-const AddItem = ({ inventory, setInventory, fieldDefs, onAdd}) => { // working, no validations yet though
+const AddItem = ({ inventory, setInventory, fieldDefs, onAdd}) => { 
     //type, description, brand, proprty no., acquisition date, cost, memorandum, district, location
     const [formData, setFormData] = useState({});
     const [message, setMessage] = useState("");

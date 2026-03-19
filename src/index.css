@@ -2,6 +2,19 @@ html {
     overflow-y: scroll;
 }
 
+.top-bar {
+    z-index: 1000;
+    background-color: #f8f9fa; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* search bar styling */
+
+.search-row th {
+    vertical-align: top;
+    min-width: 120px;
+}
+
 /* table styling */
 
 .table {
@@ -42,6 +55,23 @@ html {
 .table td input[type="checkbox"] {
     transform: scale(1.5);
     margin: auto;  
+}
+
+.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.row-clickable {
+    cursor: pointer;
+}
+
+.row-default {
+    cursor: default;
+}
+
+.table-font {
+    font-size: 0.9rem; 
 }
 
 /* modal styling */

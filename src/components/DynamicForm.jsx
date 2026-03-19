@@ -4,46 +4,48 @@ import React, { useEffect } from 'react';
 const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
 
     // handle form changes
-    const handleChange = (e) => {
-        const { name, value } = e.target;
+    const handleInputChange = (e) => {
+        const { name, value:rawValue } = e.target;
+
+        const fieldDef = fieldDefs.find(f => f.key === name); // find field definition
+
+        let value = rawValue; // we will sanitize this
+
+        if (!fieldDef) return; 
+
+        // validation for partial date inputs
+        if (fieldDef.type === "date" && fieldDef.partialDate) {
+            const isPartial = formData[`${name}_partial`] ?? false; // follows the partial checkbox
+            if (isPartial) {
+                value = value.replaceAll(/[^\d-]/g, ""); // remove non-digit/non-dash
+
+                if (value.length > 4 && value[4] !== "-") { // yyyy-mm
+                    value = value.slice(0, 4) + "-" + value.slice(4);
+                }
+                if (value.length > 7) { 
+                    value = value.slice(0, 7);
+                };
+            };
+        };
+
+        // validation for number inputs
+        if (fieldDef.type === "number") {
+            value = value.replaceAll(/[^\d.-]/g, "");       // remove invalid chars
+            value = value.replace(/^(-?\d*\.?\d{0,2}).*$/, "$1"); // keep valid number format
+        };
+
         setFormData(prev => ({
             ...prev,
             [name]: value
         }));
     };
 
-    useEffect(() => { // rerenders form data 
+    // rerenders form data 
+    useEffect(() => { 
         const handleFocus = () => setFormData(prev => ({ ...prev }));
         window.addEventListener('focus', handleFocus);
         return () => window.removeEventListener('focus', handleFocus);
     }, [setFormData]);
-
-    const handleDateChange = (e, key, isPartial) => {
-        if (isPartial) {
-            handlePartialDateInput(e, key);
-        } else {
-            handleChange(e);
-        }
-    };
-
-     // handles partial date input
-    const handlePartialDateInput = (e, key) => {
-        let value = e.target.value;
-        value = value.replaceAll(/[^\d-]/g, ""); // remove any non-digit and non-dash characters
-
-        if (value.length > 4 && value[4] !== "-") {  // automatically insert a dash after 4 digits (YYYY)
-            value = value.slice(0, 4) + "-" + value.slice(4);
-        }
-
-        if (value.length > 7) { // trim to max length of 7 (YYYY-MM)
-            value = value.slice(0, 7);
-        }
-
-        setFormData(prev => ({ // update form data
-            ...prev,
-            [key]: value
-        }));
-    };
 
     // for input fields
     const getFieldInput = (field) => {
@@ -55,7 +57,7 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
                     className="form-select"
                     name={key}
                     value={formData[key] || ""}
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                     required={required}
                 >
                     <option value="" disabled hidden>
@@ -86,7 +88,7 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
                         className="form-control"
                         name={key}
                         value={formData[key] || ""}
-                        onChange={(e) => handleDateChange(e, key, isPartial)}
+                        onChange={handleInputChange}
                         placeholder={isPartial ? "YYYY or YYYY-MM" : undefined}
                         required={required}
                     />
@@ -116,11 +118,11 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
 
         return ( // default text input
             <input
-            type={type || "text"}
+            type={"text"}
             className="form-control"
             name={key}
             value={formData[key] || ""}
-            onChange={handleChange}
+            onChange={handleInputChange}
             required={required}
             />
         );
