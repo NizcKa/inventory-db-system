@@ -60,7 +60,7 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
         if (options) {
             return ( // options input
                 <select
-                    className="form-select"
+                    className={`form-select ${isInvalid ? "is-invalid" : ""}`}
                     name={key}
                     value={formData[key] || ""}
                     onChange={handleInputChange}
@@ -101,7 +101,7 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
                     />
 
                     <div id="errorMessageDate" className="invalid-feedback">
-                        Please input digits only
+                        Please follow date formatting YYYY-MM (months are optional)
                     </div>
 
                     <div className="form-check mt-2">
@@ -116,6 +116,7 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
                                     ...prev,
                                     [`${key}_partial`]: checked,
                                     [key]: "", // clear value when toggling
+                                    [`${key}_invalid`]: false 
                                 }));
                             }}
                         />
@@ -139,11 +140,26 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
                     aria-describedby='errorMessageText'
                 />
 
-                <div id="errorMessageDate" className="invalid-feedback">
-                    Please input digits only (- and . allowed)
+                <div id={`${key}_error`} className="invalid-feedback">
+                    {getErrorMessage(type, required)}
                 </div>
             </>
         );
+    };
+
+    // error message based on field type
+    const getErrorMessage = (type, required) => {
+        if (type === "number") {
+            return required
+                ? "Required. Please enter a valid number."
+                : "Please enter a valid number.";
+        }
+
+        if (required) {
+            return "This field is required.";
+        }
+
+        return "Invalid input.";
     };
 
     return (

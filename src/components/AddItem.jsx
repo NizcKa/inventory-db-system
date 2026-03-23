@@ -1,23 +1,40 @@
 // modal popup for adding a new item
 import React, { useState } from 'react';
 import DynamicForm from './DynamicForm';
+import validateFormData from './validation/FormValidation';
 
 const AddItem = ({ inventory, setInventory, fieldDefs, onAdd}) => { 
     //type, description, brand, proprty no., acquisition date, cost, memorandum, district, location
     const [formData, setFormData] = useState({});
     const [message, setMessage] = useState("");
+	const [isError, setIsError] = useState(false);
 
 	// after submit behaviour
 	const handleSubmitClick = async ( e ) => {
 		e.preventDefault();
 
+		const errors = validateFormData(formData, fieldDefs);
+		if (Object.keys(errors).length > 0) { 
+			setFormData(prev => {
+				const updated = { ...prev };
+				Object.keys(errors).forEach(key => {
+					updated[`${key}_invalid`] = true;
+				});
+				return updated;
+			});
+
+			setMessage("Please fix validation errors before submitting.");
+			setIsError(true);
+			return;
+		}
+
 		try {
 			await onAdd(formData, setFormData); 
 
-			setMessage( "Item Added Successfully!" );
+			setMessage("Item Added Successfully!");
+		    setIsError(false);
 			setFormData({});
 			setTimeout( () => setMessage(""), 2500 );
-
 		} catch ( err ) {
 			console.error(err);
 		}
@@ -35,9 +52,18 @@ const AddItem = ({ inventory, setInventory, fieldDefs, onAdd}) => {
 
 					<div className="modal-body">
 						<form onSubmit={handleSubmitClick}>
-							<DynamicForm formData={formData} setFormData={setFormData} fieldDefs={fieldDefs} />
 
-							{message && <p className="text-success text-center mt-2">{message}</p>}
+							<DynamicForm 
+								formData={formData} 
+								setFormData={setFormData} 
+								fieldDefs={fieldDefs} 
+							/>
+
+							{message && (
+								<p className={`text-center mt-2 ${isError ? "text-danger" : "text-success"}`}>
+									{message}
+								</p>
+							)}
 
 							<div className="modal-footer">
 								<button className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

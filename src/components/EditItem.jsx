@@ -1,16 +1,32 @@
 // modal popup for editing selected item and saving changes
 import React, { useState, useEffect } from 'react';
 import DynamicForm from './DynamicForm';
+import validateFormData from './validation/FormValidation';
 
 const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete, onSave }) => { // mostly done (just needs cleanup)
 	const [formData, setFormData] = useState({});
 	const [message, setMessage] = useState("");
 	const [originalData, setOriginalData] = useState({});
+	const [isError, setIsError] = useState(false);
 
 	useEffect(() => {
-		if ( modalItem ) {
-			setFormData({ ...modalItem }); // fill form with modalItem data
-			setOriginalData({ ...modalItem }); // form baseline before and after edits
+		if (modalItem) {
+			const initializedData = { ...modalItem };
+
+			fieldDefs.forEach(field => { // intitialize date for editing
+				if (field.type === "date" && field.partialDate) {
+					const value = modalItem[field.key] || "";
+
+					// detect partial date (not full YYYY-MM-DD)
+					const isPartial = value && !/^\d{4}-\d{2}-\d{2}$/.test(value);
+
+					initializedData[`${field.key}_partial`] = isPartial;
+					initializedData[`${field.key}_invalid`] = false;
+				}
+			});
+
+			setFormData(initializedData);
+			setOriginalData(initializedData);
 		} else {
 			setFormData({});
 			setOriginalData({});
@@ -20,12 +36,27 @@ const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete, onSave }) => {
 
 	// after save behaviour
 	const handleSaveClick = async () => {
+		const errors = validateFormData(formData, fieldDefs);
+		if (Object.keys(errors).length > 0) { 
+
+			setFormData(prev => {
+				const updated = { ...prev };
+				Object.keys(errors).forEach(key => {
+					updated[`${key}_invalid`] = true;
+				});
+				return updated;
+			});
+			setIsError(true);
+			setMessage("Please fix validation errors before saving.");
+			return;
+		}
+
 		try {
-			await onSave(formData, setFormData); 
+			await onSave(formData, setOriginalData); 
 
 			setOriginalData({ ...formData });
 			setMessage("Item Saved Successfully!");
-
+		    setIsError(false);
 			setTimeout(() => setMessage(""), 2500);
 		} catch (err) {
 			console.error(err);
@@ -66,7 +97,11 @@ const EditItem = ({ modalItem, setInventory, fieldDefs, onDelete, onSave }) => {
 						<DynamicForm formData={formData} setFormData={setFormData} fieldDefs={fieldDefs} />
 					</div>
 
-					{message && (<p className="text-success text-center mb-2">{message}</p>)}
+					{message && (
+						<p className={`text-center mt-2 ${isError ? "text-danger" : "text-success"}`}>
+							{message}
+						</p>
+					)}
 
 					<div className="modal-footer">
 						<button

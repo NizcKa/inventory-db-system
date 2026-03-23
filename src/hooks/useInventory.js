@@ -28,7 +28,7 @@ const useInventory = (setInventory) => {
     };
 
     // add items to inventory
-    const addItem = async (formData, setFormData) => {
+    const addItem = async (formData, setFormData, fieldDefs) => {
         try {
             const normalizedData = normalizeFormData(formData);
 
