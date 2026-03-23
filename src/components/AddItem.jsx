@@ -35,20 +35,20 @@ const AddItem = ({ inventory, setInventory, fieldDefs, onAdd}) => {
 
 					<div className="modal-body">
 						<form onSubmit={handleSubmitClick}>
-						<DynamicForm formData={formData} setFormData={setFormData} fieldDefs={fieldDefs} />
+							<DynamicForm formData={formData} setFormData={setFormData} fieldDefs={fieldDefs} />
 
-						{message && <p className="text-success text-center mt-2">{message}</p>}
+							{message && <p className="text-success text-center mt-2">{message}</p>}
 
-						<div className="modal-footer">
-							<button className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-							<button 
-								type="submit" 
-								className="btn btn-primary"
-								disabled={!formData.Type || !formData.Property_Description}
-							>
-								Add Item
-							</button>
-						</div>
+							<div className="modal-footer">
+								<button className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+								<button 
+									type="submit" 
+									className="btn btn-primary"
+									disabled={!formData.Type || !formData.Property_Description}
+								>
+									Add Item
+								</button>
+							</div>
 						</form>
 					</div>
 

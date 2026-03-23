@@ -247,6 +247,7 @@ const App = () => {
 			<div className="d-flex flex-wrap justify-content-center mb-3 gap-2 w-100">
 				<Table 
 					items = { sortedInventory } //passes the sorted inventory onto the table
+					fieldDefs = { fieldDefs }
 					selectedItem = { selectedItem } 
 					setSelectedItem = { setSelectedItem } 
 					onEdit = { handleEdit }

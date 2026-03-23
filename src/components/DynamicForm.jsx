@@ -1,42 +1,47 @@
 // dynamic form generation used for adding and editing items
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
 
     // handle form changes
     const handleInputChange = (e) => {
         const { name, value:rawValue } = e.target;
+        const isPartial = formData[`${name}_partial`] ?? false; //partial checkbox for date
 
         const fieldDef = fieldDefs.find(f => f.key === name); // find field definition
 
-        let value = rawValue; // we will sanitize this
+        let value = rawValue; // input to be sanitized
+        let isInvalid = false;
 
         if (!fieldDef) return; 
 
         // validation for partial date inputs
-        if (fieldDef.type === "date" && fieldDef.partialDate) {
-            const isPartial = formData[`${name}_partial`] ?? false; // follows the partial checkbox
-            if (isPartial) {
-                value = value.replaceAll(/[^\d-]/g, ""); // remove non-digit/non-dash
+        if (fieldDef.type === "date" && fieldDef.partialDate && isPartial) { // follows the partial checkbox
+            const sanitizedDate = rawValue.replaceAll(/[^\d-]/g, ""); // remove non-digit/non-dash
+            isInvalid = sanitizedDate !== rawValue; // trigger if input got altered
+            value = sanitizedDate;
 
-                if (value.length > 4 && value[4] !== "-") { // yyyy-mm
-                    value = value.slice(0, 4) + "-" + value.slice(4);
-                }
-                if (value.length > 7) { 
-                    value = value.slice(0, 7);
-                };
+            if (value.length > 4 && value[4] !== "-") { // yyyy-mm
+                value = value.slice(0, 4) + "-" + value.slice(4);
+            }
+            if (value.length > 7) { 
+                value = value.slice(0, 7);
             };
         };
 
         // validation for number inputs
         if (fieldDef.type === "number") {
-            value = value.replaceAll(/[^\d.-]/g, "");       // remove invalid chars
+            const sanitizedNumber = value.replaceAll(/[^\d.-]/g, ""); // remove invalid chars
+            isInvalid = sanitizedNumber !== rawValue;
+            value = sanitizedNumber; 
+
             value = value.replace(/^(-?\d*\.?\d{0,2}).*$/, "$1"); // keep valid number format
         };
 
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            [name]: value,
+            [`${name}_invalid`]: isInvalid
         }));
     };
 
@@ -47,9 +52,10 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
         return () => window.removeEventListener('focus', handleFocus);
     }, [setFormData]);
 
-    // for input fields
+    // form input fields
     const getFieldInput = (field) => {
         const { key, type, options, required, partialDate } = field;
+        const isInvalid = formData[`${key}_invalid`] ?? false;
 
         if (options) {
             return ( // options input
@@ -72,7 +78,7 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
             );
         };
 
-        if (type === "date" && partialDate) {
+        if (type === "date" && partialDate) { // date input
             const dateValue = formData[key] || "";
 
             // auto-detect partial only if there’s a value
@@ -85,13 +91,18 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
                 <>
                     <input
                         type={isPartial ? "text" : "date"}
-                        className="form-control"
+                        className={`form-control ${isInvalid ? "is-invalid" : ""}`}
                         name={key}
                         value={formData[key] || ""}
                         onChange={handleInputChange}
                         placeholder={isPartial ? "YYYY or YYYY-MM" : undefined}
                         required={required}
+                        aria-describedby='errorMessageDate'
                     />
+
+                    <div id="errorMessageDate" className="invalid-feedback">
+                        Please input digits only
+                    </div>
 
                     <div className="form-check mt-2">
                         <input
@@ -117,14 +128,21 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
         };
 
         return ( // default text input
-            <input
-            type={"text"}
-            className="form-control"
-            name={key}
-            value={formData[key] || ""}
-            onChange={handleInputChange}
-            required={required}
-            />
+            <>
+                <input
+                    type={"text"}
+                    className={`form-control ${isInvalid ? "is-invalid" : ""}`}
+                    name={key}
+                    value={formData[key] || ""}
+                    onChange={handleInputChange}
+                    required={required}
+                    aria-describedby='errorMessageText'
+                />
+
+                <div id="errorMessageDate" className="invalid-feedback">
+                    Please input digits only (- and . allowed)
+                </div>
+            </>
         );
     };
 
@@ -132,16 +150,20 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
         <>
             {fieldDefs.map((field) => (
                 <div className="mb-3" key={field.key}>
-                <label className="form-label">
-                    {field.label} {field.required && <span className="text-danger">*</span>}
-                </label>
+
+                    <label className="form-label">
+                        {field.label} {field.required && <span className="text-danger">*</span>}
+                    </label>
+
                     {getFieldInput(field)} 
+
                 </div>
             ))}
 
             <p className="text-muted text-center mb-2">
                 All entries are automatically converted to uppercase when saved.
             </p>
+            
         </>
     );
 };

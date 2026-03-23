@@ -39,8 +39,8 @@ html {
     word-break: break-word;
 }
 
-.table th:nth-child(3),
-.table td:nth-child(3) {
+.table th:nth-child(2),
+.table td:nth-child(2) {
     text-align: left;
 }
 

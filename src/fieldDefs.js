@@ -20,18 +20,20 @@
 
     { label: "Property Number", 
       key: "Property_Number", 
-      searchable: true 
+      searchable: true
     },
 
     { label: "Acquisition Date", 
       key: "Acquisition_Date", 
       type: "date", 
-      partialDate: true 
+      partialDate: true,
+      sortable: true,
     },
 
     { label: "Cost", 
       key: "Acquisition_Cost", 
       type: "number",
+      sortable: true,
     },
 
     { label: "Memorandum", 
