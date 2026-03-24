@@ -10,10 +10,11 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\""
+    "lint": "echo \"No linting configured\"",
+    "rebuild": "electron-rebuild -f -w better-sqlite3"
   },
   "keywords": [],
-  "author": "CHO",
+  "author": "riley",
   "license": "MIT",
   "devDependencies": {
     "@electron-forge/cli": "^7.11.1",
@@ -26,11 +27,53 @@
     "@electron-forge/plugin-vite": "^7.11.1",
     "@electron/fuses": "^1.8.0",
     "electron": "40.6.1",
+    "electron-rebuild": "^3.2.9",
     "vite": "^5.4.21"
   },
   "dependencies": {
+    "@electron/rebuild": "^4.0.3",
     "@vitejs/plugin-react": "^5.1.4",
+    "better-sqlite3": "^12.8.0",
+    "bootstrap": "^5.3.8",
     "electron-squirrel-startup": "^1.0.1",
-    "react-dom": "^19.2.4"
+    "lodash": "^4.17.23",
+    "prop-types": "^15.8.1",
+    "react-csv": "^2.2.2",
+    "react-dom": "^19.2.4",
+    "react-router": "^7.13.1",
+    "sqlite": "^5.1.1"
+  },
+  "forge": {
+    "packagerConfig": {
+      "asar": {
+        "unpack": "*.node"
+      }
+    },
+    "makers": [
+      {
+        "name": "@electron-forge/maker-squirrel"
+      },
+      {
+        "name": "@electron-forge/maker-zip"
+      },
+      {
+        "name": "@electron-forge/maker-deb"
+      },
+      {
+        "name": "@electron-forge/maker-rpm"
+      }
+    ],
+    "plugins": [
+      {
+        "name": "@electron-forge/plugin-auto-unpack-natives",
+        "config": {
+          "check": true
+        }
+      },
+      {
+        "name": "@electron-forge/plugin-vite",
+        "config": {}
+      }
+    ]
   }
 }
