@@ -34,7 +34,6 @@ html {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
 
-    
     white-space: normal;     
     word-break: break-word;
 }
@@ -62,6 +61,11 @@ html {
     user-select: none;
 }
 
+.sortable:hover {
+    background-color: #bfdbf7c7; 
+    transition: background-color 0.2s ease;
+}
+
 .row-clickable {
     cursor: pointer;
 }
@@ -73,6 +77,7 @@ html {
 .table-font {
     font-size: 0.9rem; 
 }
+
 
 /* modal styling */
 .modal {

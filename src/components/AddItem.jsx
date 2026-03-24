@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import DynamicForm from './DynamicForm';
 import validateFormData from './validation/FormValidation';
 
-const AddItem = ({ inventory, setInventory, fieldDefs, onAdd}) => { 
+const AddItem = ({ fieldDefs, onAdd}) => { 
     //type, description, brand, proprty no., acquisition date, cost, memorandum, district, location
     const [formData, setFormData] = useState({});
     const [message, setMessage] = useState("");
@@ -23,7 +23,7 @@ const AddItem = ({ inventory, setInventory, fieldDefs, onAdd}) => {
 				return updated;
 			});
 
-			setMessage("Please fix validation errors before submitting.");
+			setMessage("Please fix errors before submitting.");
 			setIsError(true);
 			return;
 		}

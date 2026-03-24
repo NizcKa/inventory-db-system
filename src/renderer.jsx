@@ -19,7 +19,7 @@ import { CSVLink } from "react-csv";
 
 const App = () => {
 	const [inventory, setInventory] = useState([]); // holds the inventory table
-	const [selectedItem, setSelectedItem] = useState( null ); //holds the selected row contents
+	const [selectedItem, setSelectedItem] = useState(null); //holds the selected row contents
 	const [searchFilters, setSearchFilters] = useState({}); // column-based search state
 
 	const [deleteMode, setDeleteMode] = useState(false); // toggle for selection
@@ -29,7 +29,7 @@ const App = () => {
   		direction: 'asc'  
 	});
 	const [showDeleteModal, setShowDeleteModal] = useState(false); // toggle for the delete modal
-	const [deleteTargetIds, setDeleteTargetIds] = useState([]); // 
+	const [deleteTargetIds, setDeleteTargetIds] = useState([]); // array of ids to be deleted
 
 	const { addItem, updateItem, deleteItems } = useInventory(setInventory);
 
@@ -40,8 +40,8 @@ const App = () => {
 		.catch(err => console.error('Failed to fetch inventory:', err));
 	}, []);
 
-	// when double clicking the selected item
-	const handleEdit = ( item ) => {
+	// show edit forms
+	const handleEdit = (item) => {
 		console.log("Editing item: ", item);
 		const modal = new bootstrap.Modal(
 			document.getElementById( "editItemModal" )
@@ -80,7 +80,7 @@ const App = () => {
 		setSelectedItem(null);
 	};
 
-	// Toggle delete mode
+	// Toggle bulk delete mode
 	const handleToggleDeleteMode = () => {
 		setDeleteMode((prev) => !prev);
 		setItemsPendingDelete([]);
@@ -105,7 +105,7 @@ const App = () => {
 				setSortConfig({ key: null, direction: null }); // back to no sorting
 			} else {
 				setSortConfig({ key: columnKey, direction: 'asc' });
-			};
+			}
 		} else {
 			setSortConfig({ key: columnKey, direction: 'asc' });
 		};
@@ -213,7 +213,7 @@ const App = () => {
 						data-bs-toggle="modal"
 						data-bs-target="#addItemModal"
 					>
-					Add Item
+						Add Item
 					</button>
 
 					<button
@@ -246,32 +246,29 @@ const App = () => {
 			
 			<div className="d-flex flex-wrap justify-content-center mb-3 gap-2 w-100">
 				<Table 
-					items = { sortedInventory } //passes the sorted inventory onto the table
-					fieldDefs = { fieldDefs }
-					selectedItem = { selectedItem } 
-					setSelectedItem = { setSelectedItem } 
-					onEdit = { handleEdit }
-					deleteMode={ deleteMode }
-					selectedForDelete={ itemsPendingDelete }
-					onToggleSelect={ handleDeleteSelect }
-					onSort={ handleSort }      // tells the table how to sort when header clicked
-					sortConfig={ sortConfig }  // tells the table which arrow to display
+					items={sortedInventory} //passes the sorted inventory onto the table
+					fieldDefs={fieldDefs}
+					selectedItem={selectedItem} 
+					setSelectedItem={setSelectedItem} 
+					onEdit={handleEdit}
+					deleteMode={deleteMode}
+					selectedForDelete={itemsPendingDelete}
+					onToggleSelect={handleDeleteSelect}
+					onSort={handleSort}      // tells the table how to sort when header clicked
+					sortConfig={sortConfig}  // tells the table which arrow to display
 				/>
 
 				<EditItem
-					modalItem = { selectedItem }
-					setInventory = { setInventory }
-					setSelectedItem = { setSelectedItem } 
-					fieldDefs = { fieldDefs }
-					onDelete={ handleDelete }
-					onSave={ handleSave }
+					modalItem={selectedItem}
+					setSelectedItem={setSelectedItem} 
+					fieldDefs={fieldDefs}
+					onDelete={handleDelete}
+					onSave={handleSave}
 				/>
 
 				<AddItem
-					inventory = { inventory }
-					setInventory = { setInventory }
-					fieldDefs = { fieldDefs }
-					onAdd = { handleAdd }
+					fieldDefs={fieldDefs}
+					onAdd={handleAdd}
 				/>
 
 				<DeleteModal
