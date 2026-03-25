@@ -2,7 +2,7 @@
   "name": "admin-inventory-manager",
   "productName": "admin-inventory-manager",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "An inventory database app",
   "main": ".vite/build/main.js",
   "private": true,
   "scripts": {
