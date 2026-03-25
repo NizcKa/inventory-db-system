@@ -37,26 +37,26 @@ const SearchBars = ({ fieldDefs, onSearchChange }) => {
                         <div>{label}</div>
 
                         {options ? (
-                        <select
-                            className="form-select form-select-sm mt-1"
-                            value={localInputs[key] || ""}
-                            onChange={(e) => handleLocalChange(key, e.target.value)}
-                        >
-                            <option value="">All</option>
-                            {options.map((opt) => (
-                            <option key={opt} value={opt}>
-                                {opt}
-                            </option>
-                            ))}
-                        </select>
+                            <select
+                                className="form-select form-select-sm mt-1"
+                                value={localInputs[key] || ""}
+                                onChange={(e) => handleLocalChange(key, e.target.value)}
+                            >
+                                <option value="">All</option>
+                                {options.map((opt) => (
+                                <option key={opt} value={opt}>
+                                    {opt}
+                                </option>
+                                ))}
+                            </select>
                         ) : (
-                        <input
-                            type="text"
-                            className="form-control form-control-sm mt-1"
-                            placeholder="Search"
-                            value={localInputs[key] || ""}
-                            onChange={(e) => handleLocalChange(key, e.target.value)}
-                        />
+                            <input
+                                type="text"
+                                className="form-control form-control-sm mt-1"
+                                placeholder="Search"
+                                value={localInputs[key] || ""}
+                                onChange={(e) => handleLocalChange(key, e.target.value)}
+                            />
                         )}
                     </th>
                     );

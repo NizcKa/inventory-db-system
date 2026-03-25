@@ -115,7 +115,7 @@ const App = () => {
 	const handleSearchChange = (column, value) => {
 		setSearchFilters((prev) => ({
 			...prev,
-			[column]: value
+			[column]: value.trim()
 		}));
 	};
 

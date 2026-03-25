@@ -1,8 +1,8 @@
 // Loads the database into the app
 import Database from 'better-sqlite3';
-import fs from 'fs';
+import fs from 'node:fs';
 import { app } from 'electron';
-import path from 'path';
+import path from 'node:path';
 
 import { saveDbPath, loadDbPath } from './config.js';  
 import { selectDatabaseFile } from './select-db.js';  
