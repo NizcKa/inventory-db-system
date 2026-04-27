@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import DynamicForm from './DynamicForm';
 import validateFormData from './validation/FormValidation';
 
-const EditItem = ({ modalItem, fieldDefs, onDelete, onSave }) => { // mostly done (just needs cleanup)
+const EditItem = ({ items, modalItem, fieldDefs, onDelete, onSave }) => { // mostly done (just needs cleanup)
 	const [formData, setFormData] = useState({});
 	const [message, setMessage] = useState("");
 	const [originalData, setOriginalData] = useState({});
@@ -36,7 +36,7 @@ const EditItem = ({ modalItem, fieldDefs, onDelete, onSave }) => { // mostly don
 
 	// after save behaviour
 	const handleSaveClick = async () => {
-		const errors = validateFormData(formData, fieldDefs);
+		const errors = validateFormData(formData, fieldDefs, items);
 		if (Object.keys(errors).length > 0) { 
 
 			setFormData(prev => {

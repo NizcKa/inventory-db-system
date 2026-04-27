@@ -259,6 +259,7 @@ const App = () => {
 				/>
 
 				<EditItem
+					items={inventory} // for validation checking
 					modalItem={selectedItem}
 					setSelectedItem={setSelectedItem} 
 					fieldDefs={fieldDefs}
@@ -267,6 +268,7 @@ const App = () => {
 				/>
 
 				<AddItem
+					items={inventory} // for validation checking
 					fieldDefs={fieldDefs}
 					onAdd={handleAdd}
 				/>

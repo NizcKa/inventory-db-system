@@ -38,11 +38,11 @@ const SearchBars = ({ fieldDefs, onSearchChange }) => {
 
                         {options ? (
                             <select
-                                className="form-select form-select-sm mt-1"
+                                className={`form-select form-select-sm mt-1 ${localInputs[key] ? "active-filter" : ""}`}
                                 value={localInputs[key] || ""}
                                 onChange={(e) => handleLocalChange(key, e.target.value)}
                             >
-                                <option value="">All</option>
+                                <option value="">ALL</option>
                                 {options.map((opt) => (
                                 <option key={opt} value={opt}>
                                     {opt}

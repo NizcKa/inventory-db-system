@@ -5,7 +5,17 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
 
     // handle form changes
     const handleInputChange = (e) => {
-        const { name, value:rawValue } = e.target;
+        const { name, value: rawValue, type: inputType, checked } = e.target;
+
+        if (inputType === "checkbox") {
+            setFormData(prev => ({
+                ...prev,
+                [name]: checked,
+                [`Property_Number_invalid`]: false
+            }));
+            return;
+        }
+
         const isPartial = formData[`${name}_partial`] ?? false; //partial checkbox for date
 
         const fieldDef = fieldDefs.find(f => f.key === name); // find field definition
@@ -141,14 +151,33 @@ const DynamicForm = ({ formData, setFormData, fieldDefs }) => {
                 />
 
                 <div id={`${key}_error`} className="invalid-feedback">
-                    {getErrorMessage(type, required)}
+                    {getErrorMessage(key, type, required)}
                 </div>
+
+                {key === "Property_Number" && ( // checkbox for allowing duplicates only for property number
+                    <div className="form-check mt-2">
+                        <input
+                            className="form-check-input"
+                            type="checkbox"
+                            name="allowDuplicatePropertyNumber"
+                            checked={formData.allowDuplicatePropertyNumber || false}
+                            onChange={handleInputChange}
+                        />
+                        <label className="form-check-label" htmlFor="allowDuplicatePropertyNumber">
+                            Allow duplicate Property Number (for sets)
+                        </label>
+                    </div>
+                )}
             </>
         );
     };
 
     // error message based on field type
-    const getErrorMessage = (type, required) => {
+    const getErrorMessage = (key, type, required) => {
+        if (key === "Property_Number") {
+            return "Duplicate property number."
+        }
+
         if (type === "number") {
             return required
                 ? "Required. Please enter a valid number."

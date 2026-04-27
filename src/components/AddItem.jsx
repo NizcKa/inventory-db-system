@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import DynamicForm from './DynamicForm';
 import validateFormData from './validation/FormValidation';
 
-const AddItem = ({ fieldDefs, onAdd}) => { 
+const AddItem = ({ fieldDefs, onAdd, items}) => { 
     //type, description, brand, proprty no., acquisition date, cost, memorandum, district, location
     const [formData, setFormData] = useState({});
     const [message, setMessage] = useState("");
@@ -13,7 +13,7 @@ const AddItem = ({ fieldDefs, onAdd}) => {
 	const handleSubmitClick = async ( e ) => {
 		e.preventDefault();
 
-		const errors = validateFormData(formData, fieldDefs);
+		const errors = validateFormData(formData, fieldDefs, items);
 		if (Object.keys(errors).length > 0) { 
 			setFormData(prev => {
 				const updated = { ...prev };
