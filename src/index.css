@@ -1,14 +1,90 @@
+:root {
+    --bg: #f6f8fb;
+    --surface: #ffffff;
+    --border: #e6e9ef;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --hover: #dce8f578;
+    --active: #e0edff;
+    --accent: #3b82f6;
+}
+
 html {
     overflow-y: scroll;
 }
 
+/* search bar styling */
+
 .top-bar {
+    position: sticky;
+    top: 0;
+    vertical-align: middle;
     z-index: 1000;
-    background-color: #f8f9fa; 
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: var(--surface);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: none;
+    padding: 0.75rem 1rem;
 }
 
-/* search bar styling */
+.top-bar .btn {
+    font-size: 13px;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    box-shadow: none;
+    transition: all 0.15s ease;
+}
+
+.top-bar .btn:hover {
+    transform: translateY(-1px);
+}
+
+.search-row input,
+.search-row select {
+    width: 100%;
+    font-size: 12px;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background-color: var(--surface);
+    color: var(--text);
+    transition: all 0.15s ease;
+}
+
+.search-row input:hover,
+.search-row select:hover {
+    border-color: var(--muted);
+}
+
+.search-row input:focus,
+.search-row select:focus {
+    outline: none;
+    border-color: var(--accent);
+    background-color: var(--bg);
+    box-shadow: 0 0 0 2px rgba(59,130,246,0.1);
+}
+
+.search-row input::placeholder {
+    color: var(--muted);
+}
+
+.search-row select {
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 0.4rem center;
+    background-size: 12px;
+    padding-right: 1.5rem;
+}
+
+.search-row input:not(:placeholder-shown){
+    border-color: #3b82f6;
+    background-color: #eef6ff;
+}
+
+.search-row select.active-filter {
+    border-color: #3b82f6;
+    background-color: #eef6ff;
+}
 
 .search-row th {
     vertical-align: top;
@@ -19,65 +95,78 @@ html {
 
 .table {
     table-layout: fixed;
-    width: 100%;              
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-    border-radius: 0.3rem;     
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    box-shadow: none;
 }
 
 .table th {
-  vertical-align: middle; 
-  text-align: center;     
+    vertical-align: middle;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    font-size: 14px;
+    user-select: none;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.table td {
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
 }
 
 .table th,
 .table td {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-
-    white-space: normal;     
+    padding-left: 0.5rem; 
+    padding-right: 0.5rem; 
+    white-space: normal; 
     word-break: break-word;
 }
 
-.table th:nth-child(2),
-.table td:nth-child(2) {
-    text-align: left;
+.table th:nth-child(2), 
+.table td:nth-child(2) { 
+    text-align: left; 
 }
 
-.table tbody tr:not(.table-primary):hover > *  {
-    background-color: #b9dfff4d;
+.table tbody tr:hover {
+    background-color: var(--hover);
 }
 
-.table th:not(.table-primary):hover > *  {
-    background-color: #abd9ff50;
+.table-primary {
+    background-color: var(--active) !important;
 }
 
-.table td input[type="checkbox"] {
-    transform: scale(1.5);
-    margin: auto;  
+.table tbody tr:not(.table-primary):hover > * {
+    background-color: var(--hover);
+    transition: background-color 0.15s ease;
 }
 
 .sortable {
     cursor: pointer;
-    user-select: none;
+    color: var(--muted);
 }
 
 .sortable:hover {
-    background-color: #bfdbf7c7; 
-    transition: background-color 0.2s ease;
+    background-color: var(--hover);
 }
 
-.row-clickable {
-    cursor: pointer;
+.row-clickable { 
+    cursor: pointer; 
+} 
+
+.row-default { 
+    cursor: default; 
 }
 
-.row-default {
-    cursor: default;
+.table td input[type="checkbox"] {
+    transform: scale(1.2);
+    margin: auto;
+    accent-color: var(--accent);
 }
-
-.table-font {
-    font-size: 0.9rem; 
-}
-
 
 /* modal styling */
 .modal {
